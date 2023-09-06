@@ -32,10 +32,10 @@ namespace NellieBot.Events
                 Timestamp = DateTime.Now
             }.AddField(
                 "Previous Contents",
-                (e.MessageBefore?.Content ?? "Failed to retrieve previous message contents.").TrimForEmbed())
+                StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents.").TrimForEmbed())
             .AddField(
                 "New Contents",
-                (e.Message?.Content ?? "Failed to retrieve new message contents.").TrimForEmbed())
+                StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents.").TrimForEmbed())
             .AddAuthorAndAttachmentInfo(e.Message!);
 
             await logChannel.SendMessageAsync(embedBuilder);
@@ -57,7 +57,7 @@ namespace NellieBot.Events
                 Timestamp = DateTime.Now
             }.AddField(
                 "Message Contents",
-                (e.Message?.Content ?? "Failed to retrieve message contents.").TrimForEmbed())
+                StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve message contents.").TrimForEmbed())
             .AddAuthorAndAttachmentInfo(e.Message!);
 
             await logChannel.SendMessageAsync(embedBuilder);

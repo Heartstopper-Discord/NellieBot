@@ -1,12 +1,14 @@
 ﻿global using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
-using NellieBot.Commands.Moderation;
 using Serilog;
 using NellieBot.Events;
 using NellieBot.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NellieBot.Commands;
+using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity;
 
 namespace NellieBot
 {
@@ -39,18 +41,25 @@ namespace NellieBot
                 LoggerFactory = logFactory
             });
 
+            discord.UseInteractivity(new InteractivityConfiguration()
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            });
+
             var slash = discord.UseSlashCommands(new SlashCommandsConfiguration() 
             { 
                 Services = new ServiceCollection().AddSingleton(GuildSettings).BuildServiceProvider()
             });
 
-            slash.RegisterCommands<ModerationCommands>();
+            slash.RegisterCommands<WarnCommands>();
+            slash.RegisterCommands<UtilityCommands>();
 
             discord.GuildMemberAdded += UserEvents.GuildMemberAdded;
             discord.MessageUpdated += UserEvents.MessageUpdated;
             discord.MessageDeleted += UserEvents.MessageDeleted;
 
             discord.GuildAvailable += GuildEvents.GuildAvailable;
+            // discord.ComponentInteractionCreated += ClientEvents.ComponentInteractionCreated;
 
             await discord.ConnectAsync();
             await Task.Delay(-1);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NellieBot.Database.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,8 @@ namespace NellieBot.Database
 {
     public class DatabaseContext : DbContext
     {
-        public DbSet<GuildSettings> GuildSettings { get; set; }
+        public DbSet<WarnData> Warns { get; set; }
+        public DbSet<WarnData> Timeouts { get; set; }
 
         public DatabaseContext()
         {

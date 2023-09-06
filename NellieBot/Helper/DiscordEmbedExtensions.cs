@@ -11,9 +11,8 @@ namespace NellieBot.Extensions
     {
         public static DiscordEmbedBuilder AddAuthorInfo(this DiscordEmbedBuilder b, DiscordUser u)
         {
-            b.AddField("Message Author:", $"{u.Mention} ({u.Username})")
+            return b.AddField("Message Author:", $"{u.Mention} ({u.Username})")
                 .AddField("Author ID:", u.Id.ToString());
-            return b;
         }
 
         public static DiscordEmbedBuilder AddAttachmentInfo(this DiscordEmbedBuilder b, DiscordMessage m)

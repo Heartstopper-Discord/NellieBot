@@ -1,19 +1,20 @@
 ﻿using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
-using DSharpPlus;
 using NellieBot.Database;
 using NellieBot.Extensions;
 using NellieBot.Database.Collections;
-using DSharpPlus.Exceptions;
 using NellieBot.Helper;
 using DSharpPlus.Interactivity.Extensions;
+using System.Diagnostics;
 
 namespace NellieBot.Commands
 {
+    [SlashCommandPermissions(Permissions.ManageMessages)]
+    [HasRole(ModType.Mod)]
     [SlashCommandGroup("warn", "The parent command for all warn commands.")]
     public class WarnCommands : ApplicationCommandModule
     {
-        public required GuildSettings GuildSettings { private get; set; }
+        public required Config GuildSettings { private get; set; }
 
         [SlashCommand("user", "Warns a user.")]
         public async Task WarnUserCommand(InteractionContext ctx, 
@@ -25,7 +26,7 @@ namespace NellieBot.Commands
             await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
             var member = (DiscordMember)user;
 
-            WarnCollection.AddWarn(member, reason, note);
+            await WarnCollection.AddWarn(member, reason, note);
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Warned user."));
 
             var numWarns = WarnCollection.GetWarnCount(member);
@@ -34,11 +35,10 @@ namespace NellieBot.Commands
                 $"Warning {numWarns} in {ctx.Guild.Name}", 
                 $"**Reason:** {reason}");
 
-            var embed = ModerationTypes.Warn
-                .GetBaseEmbed(reason, user, ctx.User, dmResult)
-                .AddField("Total strikes",numWarns.ToString());
-
-            await ctx.Guild.GetChannel(GuildSettings.ActionLogChannel).SendMessageAsync(embed);
+            await new LogBuilder(LogType.Warn)
+                .WithActionEmbed(reason, note, user, ctx.User, dmResult)
+                .WithField("Total strikes", numWarns.ToString())
+                .Send();
         }
 
         [SlashCommand("remove", "Removes a warning from a user")]
@@ -78,22 +78,27 @@ namespace NellieBot.Commands
                $"Warning removal in {ctx.Guild.Name}",
                $"You have had a warning removed. You now have {numWarns} active warnings.");
 
-            var embed = ModerationTypes.Warn
-                .GetBaseEmbed(null, user, ctx.User, dmResult)
-                .AddField("Total strikes", numWarns.ToString());
-
-            await ctx.Guild.GetChannel(GuildSettings.ActionLogChannel).SendMessageAsync(embed);
+            await new LogBuilder(LogType.RemoveWarn)
+                .WithActionEmbed(null, null, user, ctx.User, dmResult)
+                .WithField("Total strikes", numWarns.ToString())
+                .Send();
         }
 
         [SlashCommand("list", "Lists warnings for a user")]
         public async Task WarnListCommand(InteractionContext ctx,
             [Option("user", "Person to list warnings for")] DiscordUser user)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
             var member = (DiscordMember)user;
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
+
             var warnings = WarnCollection.GetWarns(member);
 
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
             if (!warnings.Any())
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{member.DisplayName} has no warnings."));
@@ -105,15 +110,18 @@ namespace NellieBot.Commands
                 Color = DiscordColor.Red,
                 Title = $"Warnings for {member.DisplayName} ({member.Username})"
             };
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
             for (int i = 0; i < warnings.Count; i++)
             {
                 var x = warnings[i];
                 embed.AddField($"Warning {i + 1}", 
-                    $"Created at {Formatter.Timestamp(x.DateTime, TimestampFormat.LongDateTime)} " +
-                    $"{Formatter.Timestamp(x.DateTime, TimestampFormat.RelativeTime)}\n" +
-                    $"Reason: {StringEx.DefaultIfNullOrEmpty(x.Reason, "No reason provided")}");
+                    $"Created at: {Formatter.Timestamp(x.DateTime, TimestampFormat.LongDateTime)} " +
+                    $"({Formatter.Timestamp(x.DateTime, TimestampFormat.RelativeTime)})\n" +
+                    $"Reason: {StringEx.DefaultIfNullOrEmpty(x.Reason, "No reason provided")}\n" +
+                    $"Note: {StringEx.DefaultIfNullOrEmpty(x.Note, "No note provided")}");
             }
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }

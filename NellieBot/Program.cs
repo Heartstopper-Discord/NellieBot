@@ -9,20 +9,23 @@ using Newtonsoft.Json;
 using NellieBot.Commands;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity;
+using NellieBot.Database.Collections;
 
 namespace NellieBot
 {
     class Program
     {
-        public static GuildSettings GuildSettings;
+        public static Config BotConfig;
+        public static DiscordConfig DiscordConfig;
+
         static async Task Main(string[] args)
         {
             try
             {
-                GuildSettings = JsonConvert.DeserializeObject<GuildSettings>(File.ReadAllText("config.json"))!; 
+                BotConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText("config.json"))!; 
             } catch (Exception) 
             {
-                File.WriteAllText("config.json", JsonConvert.SerializeObject(new GuildSettings() { Token = "bot_token_here" },Formatting.Indented));
+                File.WriteAllText("config.json", JsonConvert.SerializeObject(new Config(),Formatting.Indented));
                 Console.WriteLine("No config exists. Please fill in config.json and restart.");
                 return;
             }
@@ -34,7 +37,7 @@ namespace NellieBot
             var logFactory = new LoggerFactory().AddSerilog();
             var discord = new DiscordClient(new DiscordConfiguration()
             {
-                Token = GuildSettings.Token,
+                Token = BotConfig.Token,
                 TokenType = TokenType.Bot,
                 Intents = DiscordIntents.All,
                 MinimumLogLevel = LogLevel.Information,
@@ -46,11 +49,9 @@ namespace NellieBot
                 Timeout = TimeSpan.FromSeconds(30)
             });
 
-            var slash = discord.UseSlashCommands(new SlashCommandsConfiguration() 
-            { 
-                Services = new ServiceCollection().AddSingleton(GuildSettings).BuildServiceProvider()
-            });
+            var slash = discord.UseSlashCommands();
 
+            slash.SlashCommandErrored += ClientEvents.SlashCommandErrored;
             slash.RegisterCommands<WarnCommands>();
             slash.RegisterCommands<UtilityCommands>();
 
@@ -59,7 +60,6 @@ namespace NellieBot
             discord.MessageDeleted += UserEvents.MessageDeleted;
 
             discord.GuildAvailable += GuildEvents.GuildAvailable;
-            // discord.ComponentInteractionCreated += ClientEvents.ComponentInteractionCreated;
 
             await discord.ConnectAsync();
             await Task.Delay(-1);

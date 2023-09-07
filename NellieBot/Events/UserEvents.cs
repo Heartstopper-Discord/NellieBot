@@ -1,6 +1,8 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using NellieBot.Extensions;
+using NellieBot.Helper;
+using System.Diagnostics;
 
 namespace NellieBot.Events
 {
@@ -19,48 +21,26 @@ namespace NellieBot.Events
 
         public static async Task MessageUpdated(DiscordClient _, MessageUpdateEventArgs e)
         {
-            if (e.Author.IsCurrent) return;
-            if (e.Message.WebhookMessage) return;
+            if (e.Author.IsCurrent || e.Message.WebhookMessage) return;
 
-            var logChannel = e.Guild.GetChannel(Program.GuildSettings.MessageLogChannel);
-
-            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
-            {
-                Color = DiscordColor.Yellow,
-                Author = new() { Name = "Message Edited", IconUrl = e.Author.AvatarUrl },
-                Description = $"Location: {e.Channel.Mention} ({e.Channel.Name})",
-                Timestamp = DateTime.Now
-            }.AddField(
-                "Previous Contents",
-                StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents.").TrimForEmbed())
-            .AddField(
-                "New Contents",
-                StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents.").TrimForEmbed())
-            .AddAuthorAndAttachmentInfo(e.Message!);
-
-            await logChannel.SendMessageAsync(embedBuilder);
+            await new LogBuilder(LogType.MessageUpdated)
+                .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author)
+                .WithField("Previous Contents", StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents."))
+                .WithField("New Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents."))
+                .WithAuthorAndAttachmentInfo(e.Message!)
+                .Send();
         }
 
 
         public static async Task MessageDeleted(DiscordClient _, MessageDeleteEventArgs e)
         {
-            if (e.Message.Author.IsCurrent) return;
-            if (e.Message.WebhookMessage) return;
+            if (e.Message.Author.IsCurrent || e.Message.WebhookMessage) return;
 
-            var logChannel = e.Guild.GetChannel(Program.GuildSettings.MessageLogChannel);
-
-            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
-            {
-                Color = DiscordColor.HotPink,
-                Author = new() { Name = "Message Deleted", IconUrl = e.Message.Author.AvatarUrl },
-                Description = $"Location: {e.Channel.Mention} ({e.Channel.Name})",
-                Timestamp = DateTime.Now
-            }.AddField(
-                "Message Contents",
-                StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve message contents.").TrimForEmbed())
-            .AddAuthorAndAttachmentInfo(e.Message!);
-
-            await logChannel.SendMessageAsync(embedBuilder);
+            await new LogBuilder(LogType.MessageDeleted)
+                .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author)
+                .WithField("Message Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve message contents."))
+                .WithAuthorAndAttachmentInfo(e.Message!)
+                .Send();
         }
     }
 }

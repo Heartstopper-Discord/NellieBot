@@ -1,10 +1,5 @@
 ﻿using DSharpPlus.Entities;
 using NellieBot.Database.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NellieBot.Database.Collections
 {
@@ -22,7 +17,7 @@ namespace NellieBot.Database.Collections
             return db.Warns.Count(x => x.UserId == m.Id);
         }
 
-        public static void AddWarn(DiscordMember m, string reason, string note)
+        public static async Task AddWarn(DiscordMember m, string reason, string note)
         {
             using var db = new DatabaseContext();
 
@@ -35,8 +30,8 @@ namespace NellieBot.Database.Collections
                 DateTime = DateTime.Now
             };
 
-            db.Warns.Add(warn);
-            db.SaveChanges();
+            await db.Warns.AddAsync(warn);
+            await db.SaveChangesAsync();
         }
 
         public static void RemoveWarn(DiscordMember m, int id)

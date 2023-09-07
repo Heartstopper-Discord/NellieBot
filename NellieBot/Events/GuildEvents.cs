@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
+using NellieBot.Database;
 using NellieBot.Extensions;
 
 namespace NellieBot.Events
@@ -9,9 +10,10 @@ namespace NellieBot.Events
     {
         public static async Task GuildAvailable(DiscordClient _, GuildCreateEventArgs e)
         {
-            if (Program.GuildSettings.GuildId == e.Guild.Id)
+            if (Program.BotConfig.GuildId == e.Guild.Id)
             {
-
+                Program.DiscordConfig = new DiscordConfig(e.Guild, Program.BotConfig);
+                await Task.CompletedTask;
             }
         }
     }

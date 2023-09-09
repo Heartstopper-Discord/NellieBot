@@ -16,6 +16,7 @@ namespace NellieBot.Helper
         Warn,
         RemoveWarn,
         Timeout,
+        RemoveTimeout,
         MessageUpdated,
         MessageDeleted
     }
@@ -45,6 +46,12 @@ namespace NellieBot.Helper
                 case LogType.Timeout:
                     Embed = Embed.WithColor(DiscordColor.Orange)
                         .WithTitle("Timeout");
+                    LogChannel = Program.DiscordConfig.ActionLogChannel;
+                    break;
+
+                case LogType.RemoveTimeout:
+                    Embed = Embed.WithColor(DiscordColor.Orange)
+                        .WithTitle("Timeout Removed");
                     LogChannel = Program.DiscordConfig.ActionLogChannel;
                     break;
 

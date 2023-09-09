@@ -11,7 +11,7 @@ namespace NellieBot.Database.Entities
         public ulong Id { get; set; }
         public ulong UserId { get; set; }
         public string Reason { get; set; }
-        //public DateTime DateTime { get; set; }
-        //public DateTime Until { get; set; }
+        public DateTime DateTime { get; set; }
+        public DateTime Until { get; set; }
     }
 }

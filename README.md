@@ -7,9 +7,9 @@
   - [x] Unwarn user
   - [x] List user's warns
 - [ ] Timeout Commands
-  - [ ] Timeout user
-  - [ ] Remove user's timeout
-  - [ ] List user's timeouts
+  - [ ] Timeout user (Command/Logs exist functionality doesn't)
+  - [ ] Remove user's timeout (Command/Logs exist functionality doesn't)
+  - [x] List user's timeouts
 - [ ] Kick user
 - [ ] Ban user
 - [ ] Unban user

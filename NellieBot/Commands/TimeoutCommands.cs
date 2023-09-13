@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using NellieBot.Database;
 using NellieBot.Extensions;
 using NellieBot.Database.Collections;
+using NellieBot.Database.Entities;
 using NellieBot.Helper;
 using DSharpPlus.Interactivity.Extensions;
 using System.Diagnostics;
@@ -28,20 +29,23 @@ namespace NellieBot.Commands
 
             int hours = length/60;
             int minutes = length%60;
+            TimeSpan timespan = new TimeSpan(hours, minutes, 0);
 
-            await TimeoutCollection.AddTimeout(member, reason, new TimeSpan(hours,minutes,0));
+            await TimeoutCollection.AddTimeout(member, reason, timespan);
+            await member.TimeoutAsync(DateTimeOffset.Now + timespan, reason);
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Timed out user."));
 
-            var numTimeouts = WarnCollection.GetTimeoutCount(member);
+            var numTimeouts = TimeoutCollection.GetTimeoutCount(member);
 
             var dmResult = await member.SendModerationDM(dm,
                 $"Timeout {numTimeouts} in {ctx.Guild.Name} for {length} minutes",
                 $"**Reason:** {reason}");
 
+
             await new LogBuilder(LogType.Timeout)
-                .WithActionEmbed(reason, note, user, ctx.User, dmResult)
+                .WithActionEmbed(reason,"", user, ctx.User, dmResult)
                 .WithField("Total strikes", numTimeouts.ToString())
-                .WithField("Timeout length",length.toString() + "minutes")
+                .WithField("Timeout length ",length + " minutes")
                 .Send();
         }
 
@@ -54,7 +58,7 @@ namespace NellieBot.Commands
             await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
 
             var member = (DiscordMember)user;
-            TimeoutData timeout = TimeoutCollection.GetCurrentTimeout(member);
+            TimeoutData timeout = TimeoutCollection.getCurrentTimeout(member);
 
             if (timeout == null)
             {
@@ -62,7 +66,8 @@ namespace NellieBot.Commands
                 return;
             }
 
-            WarnCollection.RemoveWarn(member, timeout.Id);
+            ///TimeoutCollection.RemoveTimeout(member, timeout.Id); - Assuming we don't want to remove the log of timeouts but maybe I'm wrong?
+            await member.TimeoutAsync(DateTime.Now);
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Removed timeout from user."));
 
 
@@ -105,9 +110,9 @@ namespace NellieBot.Commands
             };
             Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
-            for (int i = 0; i < warnings.Count; i++)
+            for (int i = 0; i < timeouts.Count; i++)
             {
-                var x = warnings[i];
+                var x = timeouts[i];
                 DateTime until = x.Until;
                 TimeSpan timeLength = x.Until - x.DateTime;
                 int minuteLength = timeLength.Hours*60+timeLength.Minutes;

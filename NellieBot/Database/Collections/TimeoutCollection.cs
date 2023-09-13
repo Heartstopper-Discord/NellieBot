@@ -8,8 +8,8 @@ namespace NellieBot.Database.Collections
         public static TimeoutData getCurrentTimeout(DiscordMember m)
         {
             using var db = new DatabaseContext();
-            DateTime now = DateTime.Now
-            return db.Timeouts.Where(x => x.UserId == m.Id).Where(x => x.Until > now).ToList(); //No idea if this works... dead brain coding time
+            DateTime now = DateTime.Now;
+            return db.Timeouts.Where(x => x.UserId == m.Id).Where(x => x.Until > now).ToList().First(); //No idea if this works... dead brain coding time
         }
 
         public static List<TimeoutData> GetTimeouts(DiscordMember m)
@@ -18,10 +18,10 @@ namespace NellieBot.Database.Collections
             return db.Timeouts.Where(x => x.UserId == m.Id).ToList();
         }
 
-        public static int GetTimeoutCount(DiscordMember m)
+        public static ulong GetTimeoutCount(DiscordMember m)
         {
             using var db = new DatabaseContext();
-            return db.Timeout.Count(x => x.UserId == m.Id);
+            return (ulong)db.Timeouts.Count(x => x.UserId == m.Id);
         }
 
         public static async Task AddTimeout(DiscordMember m, string reason, TimeSpan timeoutLength)
@@ -37,14 +37,14 @@ namespace NellieBot.Database.Collections
                 Until = DateTime.Now.Add(timeoutLength)
             };
 
-            await db.Timeouts.AddAsync(warn);
+            await db.Timeouts.AddAsync(timeout);
             await db.SaveChangesAsync();
         }
 
-        public static void RemoveTimeout(DiscordMember m, int id)
+        public static void RemoveTimeout(DiscordMember m, ulong id)
         {
             using var db = new DatabaseContext();
-            var warnToDelete = db.Warns.First(x => x.Id == id && x.UserId == m.Id);
+            var warnToDelete = db.Timeouts.First(x => x.Id == id && x.UserId == m.Id);
             warnToDelete.Until = DateTime.Now;
             
             db.SaveChanges();

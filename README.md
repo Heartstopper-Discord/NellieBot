@@ -29,6 +29,7 @@
   - [ ] Respond to forum request
 - [ ] Say Commands
   - [ ] ...
+- [ ] Thin Ice Commands
 - [ ] Logs
   - [ ] Hook into PluralKit? Or catch PK logs somehow for message edit/deletes
   - [ ] Member Join/Leave log

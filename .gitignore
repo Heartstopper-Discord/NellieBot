@@ -398,3 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 NellieBot/*.db
+
+config.json

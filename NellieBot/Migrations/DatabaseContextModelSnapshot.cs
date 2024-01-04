@@ -10,60 +10,60 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NellieBot.Migrations
 {
-    [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+  [DbContext(typeof(DatabaseContext))]
+  partial class DatabaseContextModelSnapshot : ModelSnapshot
+  {
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+      modelBuilder
+        .HasAnnotation("ProductVersion", "7.0.10")
+        .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+      NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("NellieBot.Database.Entities.TimeoutData", b =>
-                {
-                    b.Property<decimal>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric(20,0)");
+      modelBuilder.Entity("NellieBot.Database.Entities.TimeoutData", b =>
+          {
+            b.Property<decimal>("Id")
+              .ValueGeneratedOnAdd()
+              .HasColumnType("numeric(20,0)");
 
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("text");
+            b.Property<string>("Reason")
+              .IsRequired()
+              .HasColumnType("text");
 
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("numeric(20,0)");
+            b.Property<decimal>("UserId")
+              .HasColumnType("numeric(20,0)");
 
-                    b.HasKey("Id");
+            b.HasKey("Id");
 
-                    b.ToTable("Timeouts");
-                });
+            b.ToTable("Timeouts");
+          });
 
-            modelBuilder.Entity("NellieBot.Database.Entities.WarnData", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
+      modelBuilder.Entity("NellieBot.Database.Entities.WarnData", b =>
+          {
+            b.Property<int>("Id")
+              .HasColumnType("integer");
 
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("numeric(20,0)");
+            b.Property<decimal>("UserId")
+              .HasColumnType("numeric(20,0)");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone");
+            b.Property<DateTime>("DateTime")
+              .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("text");
+            b.Property<string>("Note")
+              .IsRequired()
+              .HasColumnType("text");
 
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("text");
+            b.Property<string>("Reason")
+              .IsRequired()
+              .HasColumnType("text");
 
-                    b.HasKey("Id", "UserId");
+            b.HasKey("Id", "UserId");
 
-                    b.ToTable("Warns");
-                });
+            b.ToTable("Warns");
+          });
 #pragma warning restore 612, 618
-        }
     }
+  }
 }

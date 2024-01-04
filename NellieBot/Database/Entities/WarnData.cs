@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace NellieBot.Database.Entities
 {
-    [PrimaryKey(nameof(Id), nameof(UserId))]
-    public class WarnData
-    {
-        public int Id { get; set; }
-        public ulong UserId { get; set; }
-        public string Reason { get; set; }
-        public string Note { get; set; }
-        public DateTime DateTime { get; set; }
-    }
+  [PrimaryKey(nameof(Id), nameof(UserId))]
+  public class WarnData
+  {
+    public int Id { get; set; }
+    public ulong UserId { get; set; }
+    public string Reason { get; set; }
+    public string Note { get; set; }
+    public DateTime DateTime { get; set; }
+  }
 }

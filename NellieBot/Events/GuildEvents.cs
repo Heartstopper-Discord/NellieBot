@@ -6,15 +6,15 @@ using NellieBot.Extensions;
 
 namespace NellieBot.Events
 {
-    public class GuildEvents
+  public class GuildEvents
+  {
+    public static async Task GuildAvailable(DiscordClient _, GuildCreateEventArgs e)
     {
-        public static async Task GuildAvailable(DiscordClient _, GuildCreateEventArgs e)
-        {
-            if (Program.BotConfig.GuildId == e.Guild.Id)
-            {
-                Program.DiscordConfig = new DiscordConfig(e.Guild, Program.BotConfig);
-                await Task.CompletedTask;
-            }
-        }
+      if (Program.BotConfig.GuildId == e.Guild.Id)
+      {
+        Program.DiscordConfig = new DiscordConfig(e.Guild, Program.BotConfig);
+        await Task.CompletedTask;
+      }
     }
+  }
 }

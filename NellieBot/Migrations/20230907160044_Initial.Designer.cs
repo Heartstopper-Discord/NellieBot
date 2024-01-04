@@ -11,44 +11,44 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NellieBot.Migrations
 {
-    [DbContext(typeof(DatabaseContext))]
-    [Migration("20230907160044_Initial")]
-    partial class Initial
+  [DbContext(typeof(DatabaseContext))]
+  [Migration("20230907160044_Initial")]
+  partial class Initial
+  {
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+      modelBuilder
+        .HasAnnotation("ProductVersion", "7.0.10")
+        .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+      NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("NellieBot.Database.Entities.WarnData", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
+      modelBuilder.Entity("NellieBot.Database.Entities.WarnData", b =>
+          {
+            b.Property<int>("Id")
+              .HasColumnType("integer");
 
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("numeric(20,0)");
+            b.Property<decimal>("UserId")
+              .HasColumnType("numeric(20,0)");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone");
+            b.Property<DateTime>("DateTime")
+              .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("text");
+            b.Property<string>("Note")
+              .IsRequired()
+              .HasColumnType("text");
 
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("text");
+            b.Property<string>("Reason")
+              .IsRequired()
+              .HasColumnType("text");
 
-                    b.HasKey("Id", "UserId");
+            b.HasKey("Id", "UserId");
 
-                    b.ToTable("WarnData");
-                });
+            b.ToTable("WarnData");
+          });
 #pragma warning restore 612, 618
-        }
     }
+  }
 }

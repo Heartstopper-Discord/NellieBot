@@ -1,27 +1,28 @@
 ﻿using DSharpPlus.Entities;
+using Microsoft.EntityFrameworkCore;
 using NellieBot.Database.Entities;
 
 namespace NellieBot.Database.Collections
 {
   static class TimeoutCollection
   {
-    public static TimeoutData getCurrentTimeout(DiscordMember m)
+    public static async Task<TimeoutData> GetCurrentTimeout(DiscordMember m)
     {
       using var db = new DatabaseContext();
       DateTime now = DateTime.Now;
-      return db.Timeouts.Where(x => x.UserId == m.Id).Where(x => x.Until > now).ToList().First(); //No idea if this works... dead brain coding time
+      return await db.Timeouts.Where(x => x.UserId == m.Id).Where(x => x.Until > now).FirstAsync(); //No idea if this works... dead brain coding time
     }
 
-    public static List<TimeoutData> GetTimeouts(DiscordMember m)
+    public static async Task<List<TimeoutData>> GetTimeouts(DiscordMember m)
     {
       using var db = new DatabaseContext();
-      return db.Timeouts.Where(x => x.UserId == m.Id).ToList();
+      return await db.Timeouts.Where(x => x.UserId == m.Id).ToListAsync();
     }
 
-    public static ulong GetTimeoutCount(DiscordMember m)
+    public static async Task<int> GetTimeoutCount(DiscordMember m)
     {
       using var db = new DatabaseContext();
-      return (ulong)db.Timeouts.Count(x => x.UserId == m.Id);
+      return await db.Timeouts.Where(x => x.UserId == m.Id).MaxAsync(x => x.Id);
     }
 
     public static async Task AddTimeout(DiscordMember m, string reason, TimeSpan timeoutLength)
@@ -30,7 +31,7 @@ namespace NellieBot.Database.Collections
 
       var timeout = new TimeoutData()
       {
-        Id = GetTimeoutCount(m),
+        Id = await GetTimeoutCount(m) + 1,
         UserId = m.Id,
         Reason = reason,
         DateTime = DateTime.Now,
@@ -41,13 +42,13 @@ namespace NellieBot.Database.Collections
       await db.SaveChangesAsync();
     }
 
-    public static void RemoveTimeout(DiscordMember m, ulong id)
+    public static async Task RemoveTimeout(DiscordMember m, int id)
     {
       using var db = new DatabaseContext();
       var warnToDelete = db.Timeouts.First(x => x.Id == id && x.UserId == m.Id);
       warnToDelete.Until = DateTime.Now;
 
-      db.SaveChanges();
+      await db.SaveChangesAsync();
     }
   }
 }

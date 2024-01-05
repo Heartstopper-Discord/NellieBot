@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using NellieBot.Database.Collections;
 
 namespace NellieBot.Database
 {
@@ -28,6 +29,7 @@ namespace NellieBot.Database
     public DiscordChannel MemberLogChannel { get; set; }
     public DiscordChannel ActionLogChannel { get; set; }
     public DiscordChannel UtilityLogChannel { get; set; }
+    public Dictionary<string, string> AutomodRules { get; set; } = [];
 
     public DiscordConfig(DiscordGuild g, Config c)
     {
@@ -39,6 +41,11 @@ namespace NellieBot.Database
       MemberLogChannel = g.GetChannel(c.MemberLogChannel);
       ActionLogChannel = g.GetChannel(c.ActionLogChannel);
       UtilityLogChannel = g.GetChannel(c.UtilityLogChannel);
+      RefreshAutomodRules().Wait();
+    }
+
+    public async Task RefreshAutomodRules() {
+      AutomodRules = (await AutomodCollection.GetAllAutomodRules()).ToDictionary(k => string.Join("|", k.Words.Concat(k.Regexes).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => $"({x})")), v => v.Alert);
     }
   }
 }

@@ -14,7 +14,7 @@ namespace NellieBot.Commands
   [SlashCommandGroup("timeout", "The parent command for all timeout commands.")]
   public class TimeoutCommands : ApplicationCommandModule
   {
-    public required Config GuildSettings { private get; set; }
+    public required DiscordConfig Config { private get; set; }
 
     [SlashCommand("user", "Times out a user.")]
     public async Task TimeoutUserCommand(InteractionContext ctx,
@@ -34,7 +34,7 @@ namespace NellieBot.Commands
       await member.TimeoutAsync(DateTimeOffset.Now + timespan, reason);
       await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Timed out user."));
 
-      var numTimeouts = TimeoutCollection.GetTimeoutCount(member);
+      var numTimeouts = await TimeoutCollection.GetTimeoutCount(member);
 
       var dmResult = await member.SendModerationDM(dm,
         $"Timeout {numTimeouts} in {ctx.Guild.Name} for {length} minutes",
@@ -56,7 +56,7 @@ namespace NellieBot.Commands
       await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
 
       var member = (DiscordMember)user;
-      TimeoutData timeout = TimeoutCollection.getCurrentTimeout(member);
+      TimeoutData timeout = await TimeoutCollection.GetCurrentTimeout(member);
 
       if (timeout == null)
       {
@@ -69,7 +69,7 @@ namespace NellieBot.Commands
       await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Removed timeout from user."));
 
 
-      var numTimeouts = TimeoutCollection.GetTimeoutCount(member);
+      var numTimeouts = await TimeoutCollection.GetTimeoutCount(member);
 
       var dmResult = await member.SendModerationDM(dm,
         $"Timeout removal in {ctx.Guild.Name}",
@@ -92,7 +92,7 @@ namespace NellieBot.Commands
       var member = (DiscordMember)user;
       Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
-      var timeouts = TimeoutCollection.GetTimeouts(member);
+      var timeouts = await TimeoutCollection.GetTimeouts(member);
 
       Console.WriteLine(stopwatch.ElapsedMilliseconds);
       if (!timeouts.Any())

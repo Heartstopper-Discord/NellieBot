@@ -5,6 +5,7 @@ namespace NellieBot.Database
 {
   public class DatabaseContext : DbContext
   {
+    public DbSet<AutomodData> AutomodRules { get; set; }
     public DbSet<WarnData> Warns { get; set; }
     public DbSet<TimeoutData> Timeouts { get; set; }
 

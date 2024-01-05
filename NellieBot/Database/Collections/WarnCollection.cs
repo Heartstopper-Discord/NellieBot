@@ -1,20 +1,21 @@
 ﻿using DSharpPlus.Entities;
+using Microsoft.EntityFrameworkCore;
 using NellieBot.Database.Entities;
 
 namespace NellieBot.Database.Collections
 {
   static class WarnCollection
   {
-    public static List<WarnData> GetWarns(DiscordMember m)
+    public static async Task<List<WarnData>> GetWarns(DiscordMember m)
     {
       using var db = new DatabaseContext();
-      return db.Warns.Where(x => x.UserId == m.Id).ToList();
+      return await db.Warns.Where(x => x.UserId == m.Id).ToListAsync();
     }
 
-    public static int GetWarnCount(DiscordMember m)
+    public static async Task<int> GetWarnCount(DiscordMember m)
     {
       using var db = new DatabaseContext();
-      return db.Warns.Count(x => x.UserId == m.Id);
+      return await db.Warns.Where(x => x.UserId == m.Id).MaxAsync(x => x.Id);
     }
 
     public static async Task AddWarn(DiscordMember m, string reason, string note)
@@ -22,7 +23,7 @@ namespace NellieBot.Database.Collections
       using var db = new DatabaseContext();
       var warn = new WarnData()
       {
-        Id = GetWarnCount(m),
+        Id = await GetWarnCount(m) + 1,
         UserId = m.Id,
         Reason = reason,
         Note = note,
@@ -33,13 +34,13 @@ namespace NellieBot.Database.Collections
       await db.SaveChangesAsync();
     }
 
-    public static void RemoveWarn(DiscordMember m, int id)
+    public static async Task RemoveWarn(DiscordMember m, int id)
     {
       using var db = new DatabaseContext();
       var warnToDelete = db.Warns.First(x => x.Id == id && x.UserId == m.Id);
       db.Warns.Remove(warnToDelete);
 
-      db.SaveChanges();
+      await db.SaveChangesAsync();
     }
   }
 }

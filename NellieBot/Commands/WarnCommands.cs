@@ -14,7 +14,7 @@ namespace NellieBot.Commands
   [SlashCommandGroup("warn", "The parent command for all warn commands.")]
   public class WarnCommands : ApplicationCommandModule
   {
-    public required Config GuildSettings { private get; set; }
+    public required DiscordConfig Config { private get; set; }
 
     [SlashCommand("user", "Warns a user.")]
     public async Task WarnUserCommand(InteractionContext ctx,
@@ -29,7 +29,7 @@ namespace NellieBot.Commands
       await WarnCollection.AddWarn(member, reason, note);
       await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Warned user."));
 
-      var numWarns = WarnCollection.GetWarnCount(member);
+      var numWarns = await WarnCollection.GetWarnCount(member);
 
       var dmResult = await member.SendModerationDM(dm,
         $"Warning {numWarns} in {ctx.Guild.Name}",
@@ -49,7 +49,7 @@ namespace NellieBot.Commands
       await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
 
       var member = (DiscordMember)user;
-      var warnings = WarnCollection.GetWarns(member);
+      var warnings = await WarnCollection.GetWarns(member);
 
       if (!warnings.Any())
       {
@@ -68,11 +68,11 @@ namespace NellieBot.Commands
       }
       var selected = res.Result.Values[0];
 
-      WarnCollection.RemoveWarn(member, int.Parse(selected));
+      await WarnCollection.RemoveWarn(member, int.Parse(selected));
       await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Removed warning from user."));
 
 
-      var numWarns = WarnCollection.GetWarnCount(member);
+      var numWarns = await WarnCollection.GetWarnCount(member);
 
       var dmResult = await member.SendModerationDM(dm,
         $"Warning removal in {ctx.Guild.Name}",
@@ -96,7 +96,7 @@ namespace NellieBot.Commands
       var member = (DiscordMember)user;
       Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
-      var warnings = WarnCollection.GetWarns(member);
+      var warnings = await WarnCollection.GetWarns(member);
 
       Console.WriteLine(stopwatch.ElapsedMilliseconds);
       if (!warnings.Any())

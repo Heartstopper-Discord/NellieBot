@@ -3,20 +3,31 @@ using DSharpPlus.EventArgs;
 using NellieBot.Extensions;
 using NellieBot.Helper;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace NellieBot.Events
 {
   public class UserEvents
   {
-    public static async Task GuildMemberAdded(DiscordClient _, GuildMemberAddEventArgs e)
+    public static async Task MessageCreated(DiscordClient _, MessageCreateEventArgs e)
     {
+      if (e.Author.IsBot || e.Channel.IsPrivate) return;
+
+      bool success = false;
+
       DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
       {
-        Title = "Test"
+        Title = "Ableist Terms Detected"
+      };
+      foreach (var entry in Program.DiscordConfig.AutomodRules)
+      {
+        var matches = Regex.Matches(e.Message.Content, entry.Key, RegexOptions.IgnoreCase);
+        if (matches.Count != 0) {
+          success = true;
+          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
+        }
       }
-      .AddField("Hello", "hi");
-
-      await e.Member.SendMessageAsync(embedBuilder);
+      if (success) await ((DiscordMember)e.Author).SendMessageAsync(embedBuilder);
     }
 
     public static async Task MessageUpdated(DiscordClient _, MessageUpdateEventArgs e)

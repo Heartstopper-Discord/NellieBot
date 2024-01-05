@@ -13,56 +13,65 @@ using NellieBot.Database.Collections;
 
 namespace NellieBot
 {
-    class Program
+  class Program
+  {
+    public static Config BotConfig;
+    public static DiscordConfig DiscordConfig;
+
+    static async Task Main(string[] args)
     {
-        public static Config BotConfig;
-        public static DiscordConfig DiscordConfig;
+      try
+      {
+        BotConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText("config.json"))!;
+      }
+      catch (Exception)
+      {
+        File.WriteAllText("config.json", JsonConvert.SerializeObject(new Config(), Formatting.Indented));
+        Console.WriteLine("No config exists. Please fill in config.json and restart.");
+        return;
+      }
 
-        static async Task Main(string[] args)
-        {
-            try
-            {
-                BotConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText("config.json"))!; 
-            } catch (Exception) 
-            {
-                File.WriteAllText("config.json", JsonConvert.SerializeObject(new Config(),Formatting.Indented));
-                Console.WriteLine("No config exists. Please fill in config.json and restart.");
-                return;
-            }
+      Log.Logger = new LoggerConfiguration()
+        .WriteTo.Console()
+        .CreateLogger();
 
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
+      var logFactory = new LoggerFactory().AddSerilog();
+      var discord = new DiscordClient(new DiscordConfiguration()
+      {
+        Token = BotConfig.Token,
+        TokenType = TokenType.Bot,
+        Intents = DiscordIntents.All,
+        MinimumLogLevel = LogLevel.Information,
+        LoggerFactory = logFactory
+      });
 
-            var logFactory = new LoggerFactory().AddSerilog();
-            var discord = new DiscordClient(new DiscordConfiguration()
-            {
-                Token = BotConfig.Token,
-                TokenType = TokenType.Bot,
-                Intents = DiscordIntents.All,
-                MinimumLogLevel = LogLevel.Information,
-                LoggerFactory = logFactory
-            });
+      discord.UseInteractivity(new InteractivityConfiguration()
+      {
+        Timeout = TimeSpan.FromSeconds(30)
+      });
 
-            discord.UseInteractivity(new InteractivityConfiguration()
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            });
+      discord.MessageCreated += UserEvents.MessageCreated;
+      // discord.MessageUpdated += UserEvents.MessageUpdated;
+      // discord.MessageDeleted += UserEvents.MessageDeleted;
+      discord.ModalSubmitted += ModalEvents.ModalSubmitted;
 
-            var slash = discord.UseSlashCommands();
+      await discord.ConnectAsync();
 
-            slash.SlashCommandErrored += ClientEvents.SlashCommandErrored;
-            slash.RegisterCommands<WarnCommands>();
-            slash.RegisterCommands<UtilityCommands>();
+      DiscordConfig = new DiscordConfig(await discord.GetGuildAsync(BotConfig.GuildId), BotConfig);
 
-            discord.GuildMemberAdded += UserEvents.GuildMemberAdded;
-            discord.MessageUpdated += UserEvents.MessageUpdated;
-            discord.MessageDeleted += UserEvents.MessageDeleted;
+      var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
+      {
+        Services = new ServiceCollection().AddSingleton(DiscordConfig).BuildServiceProvider()
+      });
 
-            discord.GuildAvailable += GuildEvents.GuildAvailable;
+      slash.SlashCommandErrored += ClientEvents.SlashCommandErrored;
+      // slash.RegisterCommands<WarnCommands>();
+      // slash.RegisterCommands<UtilityCommands>();
+      slash.RegisterCommands<AutomodCommands>();
 
-            await discord.ConnectAsync();
-            await Task.Delay(-1);
-        }
+      await slash.RefreshCommands();
+
+      await Task.Delay(-1);
     }
+  }
 }

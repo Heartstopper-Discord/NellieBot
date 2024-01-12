@@ -9,11 +9,19 @@ namespace NellieBot.Events
 {
   public class UserEvents
   {
+    protected static async void sendAutoModLog(String reason,DiscordUser user, DiscordMessage msg, bool dmResult, Dictionary rules) {
+      await new LogBuilder(LogType.AutoModRule)
+        .WithActionEmbed(reason, "", user, ctx.User, dmResult)
+        .WithField("Message ", msg.JumpLink)
+        .WithFields("Rules caught ", rules)
+        .Send();
+    }
     public static async Task MessageCreated(DiscordClient _, MessageCreateEventArgs e)
     {
       if (e.Author.IsBot || e.Channel.IsPrivate) return;
 
       bool success = false;
+      Dictionary matchDict = new Dictionary<string,string>();
 
       DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
       {
@@ -25,17 +33,18 @@ namespace NellieBot.Events
         if (matches.Count != 0) {
           success = true;
           embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
+          matchDict.Add(entry.Key, string.Join(", ", matches.Select(x => x.Value)));
         }
       }
       try {
         if (success) {
           await ((DiscordMember)e.Author).SendMessageAsync(embedBuilder);
-          //Log success and why 
+           sendAutoModLog("Warning item(s) caught in message",e.user,e.message,true,matchDict);
         }
       } catch (UnauthorizedException e) {
-        //Log failed DM due to block
+        sendAutoModLog("Warning item(s) caught in message. User has blocked Nellie.",e.user,e.message,false,matchDict);
       } catch (Exception e) {
-        //Log a failure?
+        sendAutoModLog("Warning item(s) caught in message.",e.user,e.message,false,matchDict);
       }
     }
 

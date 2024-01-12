@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using NellieBot.Database.Collections;
 using NellieBot.Extensions;
 
 namespace NellieBot.Helper
@@ -12,7 +13,8 @@ namespace NellieBot.Helper
     Timeout,
     RemoveTimeout,
     MessageUpdated,
-    MessageDeleted
+    MessageDeleted,
+    AutoModRule
   }
 
   public class LogBuilder
@@ -58,6 +60,12 @@ namespace NellieBot.Helper
           Embed = Embed.WithColor(DiscordColor.HotPink).WithAuthor("Message Deleted");
           LogChannel = Program.DiscordConfig.MessageLogChannel;
           break;
+        
+        case LogType.AutoModRule:
+          Embed = Embed.WithColor(DiscordColor.ForestGreen)
+            .WithTitle("AutoMod Message Detected");
+          LogChannel = Program.DiscordConfig.AutoModLogChannel;
+          break;
       }
     }
 
@@ -84,6 +92,12 @@ namespace NellieBot.Helper
     {
       Embed.AddField(name.TrimForEmbed(), value.TrimForEmbed(), inline);
       return this;
+    }
+
+    public LogBuilder WithFields(Dictionary<string,string> dict) {
+        foreach(KeyValuePair<string,string> kvp in dict) {
+          Embed.AddField(kvp.Key, kvp.Value, inline);
+        }
     }
 
     public LogBuilder WithAuthorAndAttachmentInfo(DiscordMessage m)

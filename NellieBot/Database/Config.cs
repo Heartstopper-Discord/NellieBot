@@ -41,6 +41,7 @@ namespace NellieBot.Database
       MemberLogChannel = g.GetChannel(c.MemberLogChannel);
       ActionLogChannel = g.GetChannel(c.ActionLogChannel);
       UtilityLogChannel = g.GetChannel(c.UtilityLogChannel);
+      AutoModLogChannel = g.GetChannel(c.AutoModLogChannel);
       RefreshAutomodRules().Wait();
     }
 

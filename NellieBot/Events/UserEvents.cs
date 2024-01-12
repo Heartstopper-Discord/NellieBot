@@ -27,7 +27,16 @@ namespace NellieBot.Events
           embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
         }
       }
-      if (success) await ((DiscordMember)e.Author).SendMessageAsync(embedBuilder);
+      try {
+        if (success) {
+          await ((DiscordMember)e.Author).SendMessageAsync(embedBuilder);
+          //Log success and why 
+        }
+      } catch (UnauthorizedException e) {
+        //Log failed DM due to block
+      } catch (Exception e) {
+        //Log a failure?
+      }
     }
 
     public static async Task MessageUpdated(DiscordClient _, MessageUpdateEventArgs e)

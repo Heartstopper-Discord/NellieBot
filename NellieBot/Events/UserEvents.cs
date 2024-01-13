@@ -16,9 +16,8 @@ namespace NellieBot.Events
         .WithFields("Rules caught ", rules)
         .Send();
     }
-    public static async Task MessageCreated(DiscordClient _, MessageCreateEventArgs e)
-    {
-      if (e.Author.IsBot || e.Channel.IsPrivate) return;
+
+    protected static async Task AutoModHandler(MessageCreateEventArgs e) {
 
       bool success = false;
       Dictionary matchDict = new Dictionary<string,string>();
@@ -44,13 +43,23 @@ namespace NellieBot.Events
       } catch (UnauthorizedException e) {
         sendAutoModLog("Warning item(s) caught in message. User has blocked Nellie.",e.user,e.message,false,matchDict);
       } catch (Exception e) {
-        sendAutoModLog("Warning item(s) caught in message.",e.user,e.message,false,matchDict);
+        sendAutoModLog("Warning item(s) caught in message. General DM Error.",e.user,e.message,false,matchDict);
       }
+
+    }
+    public static async Task MessageCreated(DiscordClient _, MessageCreateEventArgs e)
+    {
+      if (e.Author.IsBot || e.Channel.IsPrivate) return;
+
+      AutoModHandler(e);
+
     }
 
     public static async Task MessageUpdated(DiscordClient _, MessageUpdateEventArgs e)
     {
       if (e.Author.IsCurrent || e.Message.WebhookMessage) return;
+
+      AutoModHandler(e);
 
       await new LogBuilder(LogType.MessageUpdated)
         .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author)

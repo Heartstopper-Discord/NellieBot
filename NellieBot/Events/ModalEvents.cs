@@ -4,6 +4,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NellieBot.Database.Collections;
+using NellieBot.Extensions;
 using NellieBot.Helper;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,14 @@ namespace NellieBot.Events
       var split = e.Interaction.Data.CustomId.Split(':');
       switch (split[0]) {
         case "automod-add":
+          if(string.IsEmptyOrNull(e.Values["words"]) && string.IsEmptyOrNull(e.Values["regex"])) {
+            await e.Interaction.CreateResponseAsync(
+            InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent("No words or regexes supplied.").AsEphemeral()
+            );
+            break;
+          }
+
           await AutomodCollection.AddAutomodRule(e.Values["label"], [.. e.Values["words"].Split(',').Select(x => x.Trim())], [.. e.Values["regex"].Split('\n')], e.Values["alert"]);
           await c.GetSlashCommands().RefreshCommands();
 
@@ -30,6 +39,14 @@ namespace NellieBot.Events
           break;
 
         case "automod-edit":
+          if(string.IsEmptyOrNull(e.Values["words"]) && string.IsEmptyOrNull(e.Values["regex"])) {
+            await e.Interaction.CreateResponseAsync(
+            InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent("No words or regexes supplied.").AsEphemeral()
+            );
+            break;
+          }
+
           await AutomodCollection.EditAutomodRule(int.Parse(split[1]), e.Values["label"], [.. e.Values["words"].Split(',').Select(x => x.Trim())], [.. e.Values["regex"].Split('\n')], e.Values["alert"]);
           await c.GetSlashCommands().RefreshCommands();
 

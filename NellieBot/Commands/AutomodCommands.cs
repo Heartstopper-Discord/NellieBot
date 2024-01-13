@@ -2,6 +2,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using NellieBot.Database;
 using NellieBot.Database.Collections;
+using NellieBot.Events;
 using NellieBot.Helper;
 
 namespace NellieBot.Commands
@@ -40,7 +41,7 @@ namespace NellieBot.Commands
           new TextInputComponent(
             label: "Choose your words",
             customId: "words",
-            required: true,
+            required: false,
             style: TextInputStyle.Paragraph,
             placeholder: "Separate words or phrases with a comma (dog, cat, tiger)."
         ))
@@ -59,6 +60,8 @@ namespace NellieBot.Commands
             required: true,
             style: TextInputStyle.Paragraph
         ));
+
+        
 
       await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
     }
@@ -85,7 +88,7 @@ namespace NellieBot.Commands
           new TextInputComponent(
             label: "Choose your words",
             customId: "words",
-            required: true,
+            required: false,
             style: TextInputStyle.Paragraph,
             placeholder: "Separate words or phrases with a comma (dog, cat, tiger).",
             value: string.Join(", ", rule.Words)

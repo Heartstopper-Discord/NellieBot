@@ -125,11 +125,11 @@ namespace NellieBot.Commands
         new DiscordInteractionResponseBuilder().WithContent("Rule removed").AsEphemeral()
       );
 
-      await new LogBuilder(LogType.AutomodRuleModified)
+      await new LogBuilder(LogType.AutomodRuleRemoved)
         .WithEventEmbed(ctx.Channel, ctx.Member)
-        .WithField("Deleted", rule.Label)
-        .WithField("Words", string.Join(',', rule.Words))
-        .WithField("Regex", string.Join(',', rule.Regexes))
+        .WithField("Label", rule.Label)
+        .WithField("Words", string.Join(',', rule.Words.Select(x => $"`{x}`")))
+        .WithField("Regex", string.Join(',', rule.Regexes.Select(x => $"`{x}`")))
         .WithField("Alert", rule.Alert)
         .Send();
     }

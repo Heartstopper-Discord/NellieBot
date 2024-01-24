@@ -10,7 +10,7 @@ namespace NellieBot.Extensions
   {
     public static string TrimForEmbed(this string value)
     {
-      if (value == null) return "";
+      if (string.IsNullOrEmpty(value)) value = "-";
       if (value.Length > 1024) return value.Substring(0, 1021) + "...";
       return value;
     }

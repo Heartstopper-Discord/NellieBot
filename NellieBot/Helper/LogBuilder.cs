@@ -13,7 +13,9 @@ namespace NellieBot.Helper
     MessageUpdated,
     MessageDeleted,
     AutomodRuleBroken,
+    AutomodRuleAdded,
     AutomodRuleModified,
+    AutomodRuleRemoved,
     Error
   }
 
@@ -66,8 +68,18 @@ namespace NellieBot.Helper
           LogChannel = Program.DiscordConfig.AutomodLogChannel;
           break;
 
+         case LogType.AutomodRuleAdded:
+          Embed = Embed.WithColor(DiscordColor.Aquamarine).WithAuthor("Automod Rule Added");
+          LogChannel = Program.DiscordConfig.UtilityLogChannel;
+          break;
+
         case LogType.AutomodRuleModified:
-          Embed = Embed.WithColor(DiscordColor.Aquamarine).WithAuthor("Automod Rules Modified");
+          Embed = Embed.WithColor(DiscordColor.Aquamarine).WithAuthor("Automod Rule Modified");
+          LogChannel = Program.DiscordConfig.UtilityLogChannel;
+          break;
+
+        case LogType.AutomodRuleRemoved:
+          Embed = Embed.WithColor(DiscordColor.Aquamarine).WithAuthor("Automod Rule Removed");
           LogChannel = Program.DiscordConfig.UtilityLogChannel;
           break;
 

@@ -21,8 +21,8 @@ namespace NellieBot.Events
           return;
         }
 
-        List<string> words = [.. e.Values["words"].Split(',').Select(x => x.Trim())];
-        List<string> regexes = [.. e.Values["regex"].Split('\n')];
+        List<string> words = [.. e.Values["words"].Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x))];
+        List<string> regexes = [.. e.Values["regex"].Split('\n').Where(x => !string.IsNullOrEmpty(x))];
         await AutomodCollection.AddAutomodRule(e.Values["label"], words, regexes, e.Values["alert"]);
         await c.GetSlashCommands().RefreshCommands();
 
@@ -30,9 +30,9 @@ namespace NellieBot.Events
           InteractionResponseType.ChannelMessageWithSource,
           new DiscordInteractionResponseBuilder().WithContent("Rule added").AsEphemeral()
         );
-        await new LogBuilder(LogType.AutomodRuleModified)
+        await new LogBuilder(LogType.AutomodRuleAdded)
           .WithEventEmbed(e.Interaction.Channel, (DiscordMember)e.Interaction.User)
-          .WithField("Added", e.Values["label"])
+          .WithField("Label", e.Values["label"])
           .WithField("Words", string.Join(',', words.Select(x => $"`{x}`")))
           .WithField("Regex", string.Join(',', regexes.Select(x => $"`{x}`")))
           .WithField("Alert Message", e.Values["alert"])
@@ -49,8 +49,8 @@ namespace NellieBot.Events
         }
         AutomodData rule = await AutomodCollection.GetAutomodRule(int.Parse(split[1]));
 
-        List<string> words = [.. e.Values["words"].Split(',').Select(x => x.Trim())];
-        List<string> regexes = [.. e.Values["regex"].Split('\n')];
+        List<string> words = [.. e.Values["words"].Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x))];
+        List<string> regexes = [.. e.Values["regex"].Split('\n').Where(x => !string.IsNullOrEmpty(x))];
         await AutomodCollection.EditAutomodRule(int.Parse(split[1]), e.Values["label"], words, regexes, e.Values["alert"]);
         await c.GetSlashCommands().RefreshCommands();
 
@@ -60,7 +60,7 @@ namespace NellieBot.Events
         );
         LogBuilder log = new LogBuilder(LogType.AutomodRuleModified)
           .WithEventEmbed(e.Interaction.Channel, (DiscordMember)e.Interaction.User)
-          .WithField("Edited", e.Values["label"]);
+          .WithField("Label", e.Values["label"]);
 
         if (rule.Label != e.Values["label"]) {
           log = log.WithField("New Label", e.Values["label"]);

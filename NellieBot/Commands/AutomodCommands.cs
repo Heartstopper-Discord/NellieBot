@@ -26,7 +26,6 @@ namespace NellieBot.Commands
     [SlashCommand("add", "Adds an automod rule category")]
     public async Task AddAutomodRule(InteractionContext ctx)
     {
-
       var modal = new DiscordInteractionResponseBuilder()
         .WithTitle("Add Automod Rule")
         .WithCustomId("automod-add")
@@ -61,8 +60,6 @@ namespace NellieBot.Commands
             style: TextInputStyle.Paragraph
         ));
 
-        
-
       await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
     }
 
@@ -93,7 +90,6 @@ namespace NellieBot.Commands
             placeholder: "Separate words or phrases with a comma (dog, cat, tiger).",
             value: string.Join(", ", rule.Words)
         ))
-
         .AddComponents(
           new TextInputComponent(
             label: "Use a regex pattern for advanced matching",

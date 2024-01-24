@@ -1,26 +1,18 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using NellieBot.Extensions;
 using NellieBot.Helper;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace NellieBot.Events
 {
   public class UserEvents
   {
-    protected static async void sendAutoModLog(String reason,DiscordUser user, DiscordMessage msg, bool dmResult, Dictionary rules) {
-      await new LogBuilder(LogType.AutoModRule)
-        .WithActionEmbed(reason, "", user, ctx.User, dmResult)
-        .WithField("Message ", msg.JumpLink)
-        .WithFields("Rules caught ", rules)
-        .Send();
-    }
+    protected static async Task AutomodHandler(string message, DiscordChannel c, DiscordMember m) {
+      bool detected = false;
 
-    protected static async Task AutoModHandler(MessageCreateEventArgs e) {
-
-      bool success = false;
-      Dictionary matchDict = new Dictionary<string,string>();
+      LogBuilder log = new LogBuilder(LogType.AutoModRule).WithEventEmbed(c, m);
 
       DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
       {
@@ -28,38 +20,36 @@ namespace NellieBot.Events
       };
       foreach (var entry in Program.DiscordConfig.AutomodRules)
       {
-        var matches = Regex.Matches(e.Message.Content, entry.Key, RegexOptions.IgnoreCase);
+        var matches = Regex.Matches(message, entry.Key, RegexOptions.IgnoreCase);
         if (matches.Count != 0) {
-          success = true;
-          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
-          matchDict.Add(entry.Key, string.Join(", ", matches.Select(x => x.Value)));
+          detected = true;
+          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)).TrimForEmbed());
+          log = log.WithField(entry.Value, string.Join(", ", matches.Select(x => x.Value)).TrimForEmbed());
         }
       }
-      try {
-        if (success) {
-          await ((DiscordMember)e.Author).SendMessageAsync(embedBuilder);
-           sendAutoModLog("Warning item(s) caught in message",e.user,e.message,true,matchDict);
-        }
-      } catch (UnauthorizedException e) {
-        sendAutoModLog("Warning item(s) caught in message. User has blocked Nellie.",e.user,e.message,false,matchDict);
-      } catch (Exception e) {
-        sendAutoModLog("Warning item(s) caught in message. General DM Error.",e.user,e.message,false,matchDict);
-      }
+      if (!detected) return;
 
+      try {
+        await m.SendMessageAsync(embedBuilder);
+        log = log.WithField("User notified with direct message.", "");
+      } catch (UnauthorizedException) {
+        log = log.WithField("Failed to notify user with direct message.", "");
+      }
+      finally {
+        await log.Send();
+      }
     }
+
     public static async Task MessageCreated(DiscordClient _, MessageCreateEventArgs e)
     {
       if (e.Author.IsBot || e.Channel.IsPrivate) return;
-
-      AutoModHandler(e);
-
+      await AutomodHandler(e.Message.Content, e.Channel, (DiscordMember)e.Author);
     }
 
     public static async Task MessageUpdated(DiscordClient _, MessageUpdateEventArgs e)
     {
       if (e.Author.IsCurrent || e.Message.WebhookMessage) return;
-
-      AutoModHandler(e);
+      await AutomodHandler(e.Message.Content, e.Channel, (DiscordMember)e.Author);
 
       await new LogBuilder(LogType.MessageUpdated)
         .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author)

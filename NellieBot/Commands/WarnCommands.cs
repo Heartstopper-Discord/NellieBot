@@ -71,7 +71,6 @@ namespace NellieBot.Commands
       await WarnCollection.RemoveWarn(member, int.Parse(selected));
       await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Removed warning from user."));
 
-
       var numWarns = await WarnCollection.GetWarnCount(member);
 
       var dmResult = await member.SendModerationDM(dm,

@@ -14,7 +14,8 @@ namespace NellieBot.Helper
     RemoveTimeout,
     MessageUpdated,
     MessageDeleted,
-    AutoModRule
+    AutoModRule,
+    Error
   }
 
   public class LogBuilder
@@ -60,11 +61,15 @@ namespace NellieBot.Helper
           Embed = Embed.WithColor(DiscordColor.HotPink).WithAuthor("Message Deleted");
           LogChannel = Program.DiscordConfig.MessageLogChannel;
           break;
-        
+
         case LogType.AutoModRule:
-          Embed = Embed.WithColor(DiscordColor.ForestGreen)
-            .WithTitle("AutoMod Message Detected");
-          LogChannel = Program.DiscordConfig.AutoModLogChannel;
+          Embed = Embed.WithColor(DiscordColor.SpringGreen).WithAuthor("Automod Rule Caught");
+          LogChannel = Program.DiscordConfig.AutomodLogChannel;
+          break;
+
+        case LogType.Error:
+          Embed = Embed.WithColor(DiscordColor.Red).WithAuthor("Bot Errored");
+          LogChannel = Program.DiscordConfig.UtilityLogChannel;
           break;
       }
     }
@@ -94,12 +99,6 @@ namespace NellieBot.Helper
       return this;
     }
 
-    public LogBuilder WithFields(Dictionary<string,string> dict) {
-        foreach(KeyValuePair<string,string> kvp in dict) {
-          Embed.AddField(kvp.Key, kvp.Value, inline);
-        }
-    }
-
     public LogBuilder WithAuthorAndAttachmentInfo(DiscordMessage m)
     {
       Embed.AddAuthorAndAttachmentInfo(m);
@@ -112,13 +111,7 @@ namespace NellieBot.Helper
     }
   }
 
-  public static class Logging
-  {
-    public static DiscordEmbedBuilder Test(this DiscordEmbedBuilder a)
-    {
-      return a;
-    }
-
+  public static class LogHelpers {
     public static async Task<string> SendModerationDM(this DiscordMember m, bool dm, string title, string desc)
     {
       if (!dm) return "Direct message notification disabled.";
@@ -142,4 +135,5 @@ namespace NellieBot.Helper
       return response;
     }
   }
+
 }

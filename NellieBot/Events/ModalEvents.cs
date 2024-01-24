@@ -21,10 +21,10 @@ namespace NellieBot.Events
       var split = e.Interaction.Data.CustomId.Split(':');
       switch (split[0]) {
         case "automod-add":
-          if(string.IsEmptyOrNull(e.Values["words"]) && string.IsEmptyOrNull(e.Values["regex"])) {
+          if (string.IsNullOrEmpty(e.Values["words"]) && string.IsNullOrEmpty(e.Values["regex"])) {
             await e.Interaction.CreateResponseAsync(
-            InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder().WithContent("No words or regexes supplied.").AsEphemeral()
+              InteractionResponseType.ChannelMessageWithSource,
+              new DiscordInteractionResponseBuilder().WithContent("No words or regexes supplied.").AsEphemeral()
             );
             break;
           }
@@ -39,10 +39,10 @@ namespace NellieBot.Events
           break;
 
         case "automod-edit":
-          if(string.IsEmptyOrNull(e.Values["words"]) && string.IsEmptyOrNull(e.Values["regex"])) {
+          if (string.IsNullOrEmpty(e.Values["words"]) && string.IsNullOrEmpty(e.Values["regex"])) {
             await e.Interaction.CreateResponseAsync(
-            InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder().WithContent("No words or regexes supplied.").AsEphemeral()
+              InteractionResponseType.ChannelMessageWithSource,
+              new DiscordInteractionResponseBuilder().WithContent("No words or regexes supplied.").AsEphemeral()
             );
             break;
           }

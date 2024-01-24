@@ -2,7 +2,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using NellieBot.Database;
 using NellieBot.Database.Collections;
-using NellieBot.Events;
+using NellieBot.Database.Entities;
 using NellieBot.Helper;
 
 namespace NellieBot.Commands
@@ -116,13 +116,22 @@ namespace NellieBot.Commands
       [ChoiceProvider(typeof(RuleChoiceProvider))]
       [Option("rule", "Rule to remove")] string ruleId)
     {
+      AutomodData rule = await AutomodCollection.GetAutomodRule(int.Parse(ruleId));
       await AutomodCollection.RemoveAutomodRule(int.Parse(ruleId));
       await ctx.Client.GetSlashCommands().RefreshCommands();
 
       await ctx.CreateResponseAsync(
         InteractionResponseType.ChannelMessageWithSource,
         new DiscordInteractionResponseBuilder().WithContent("Rule removed").AsEphemeral()
-      );    
+      );
+
+      await new LogBuilder(LogType.AutomodRuleModified)
+        .WithEventEmbed(ctx.Channel, ctx.Member)
+        .WithField("Deleted", rule.Label)
+        .WithField("Words", string.Join(',', rule.Words))
+        .WithField("Regex", string.Join(',', rule.Regexes))
+        .WithField("Alert", rule.Alert)
+        .Send();
     }
   }
 }

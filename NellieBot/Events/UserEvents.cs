@@ -12,7 +12,7 @@ namespace NellieBot.Events
     protected static async Task AutomodHandler(DiscordMessage message, DiscordChannel c, DiscordMember m) {
       bool detected = false;
 
-      LogBuilder log = new LogBuilder(LogType.AutoModRule)
+      LogBuilder log = new LogBuilder(LogType.AutomodRuleBroken)
         .WithEventEmbed(c, m)
         .WithField("Link to message", message.JumpLink.ToString());
 
@@ -25,8 +25,8 @@ namespace NellieBot.Events
         var matches = Regex.Matches(message.Content, entry.Key, RegexOptions.IgnoreCase);
         if (matches.Count != 0) {
           detected = true;
-          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)).TrimForEmbed());
-          log = log.WithField(entry.Value, string.Join(", ", matches.Select(x => x.Value)).TrimForEmbed());
+          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
+          log = log.WithField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
         }
       }
       if (!detected) return;

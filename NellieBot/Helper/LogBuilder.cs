@@ -1,7 +1,5 @@
 ﻿using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using NellieBot.Database.Collections;
 using NellieBot.Extensions;
 
 namespace NellieBot.Helper
@@ -14,7 +12,8 @@ namespace NellieBot.Helper
     RemoveTimeout,
     MessageUpdated,
     MessageDeleted,
-    AutoModRule,
+    AutomodRuleBroken,
+    AutomodRuleModified,
     Error
   }
 
@@ -62,9 +61,14 @@ namespace NellieBot.Helper
           LogChannel = Program.DiscordConfig.MessageLogChannel;
           break;
 
-        case LogType.AutoModRule:
+        case LogType.AutomodRuleBroken:
           Embed = Embed.WithColor(DiscordColor.SpringGreen).WithAuthor("Automod Rule Caught");
           LogChannel = Program.DiscordConfig.AutomodLogChannel;
+          break;
+
+        case LogType.AutomodRuleModified:
+          Embed = Embed.WithColor(DiscordColor.Aquamarine).WithAuthor("Automod Rules Modified");
+          LogChannel = Program.DiscordConfig.UtilityLogChannel;
           break;
 
         case LogType.Error:

@@ -25,8 +25,8 @@ namespace NellieBot.Events
         var matches = Regex.Matches(message.Content, entry.Key, RegexOptions.IgnoreCase);
         if (matches.Count != 0) {
           detected = true;
-          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
-          log = log.WithField(entry.Value, string.Join(", ", matches.Select(x => x.Value)));
+          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value).Distinct()));
+          log = log.WithField(entry.Value, string.Join(", ", matches.Select(x => x.Value).Distinct()));
         }
       }
       if (!detected) return;

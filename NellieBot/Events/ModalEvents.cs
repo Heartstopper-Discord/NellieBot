@@ -38,7 +38,7 @@ namespace NellieBot.Events
           .WithField("Alert Message", e.Values["alert"])
           .Send();
         return;
-      } 
+      }
       else if (split[0] == "automod-edit") {
         if (string.IsNullOrEmpty(e.Values["words"]) && string.IsNullOrEmpty(e.Values["regex"])) {
           await e.Interaction.CreateResponseAsync(

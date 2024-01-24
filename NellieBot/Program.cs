@@ -51,7 +51,7 @@ namespace NellieBot
       });
 
       discord.MessageCreated += UserEvents.MessageCreated;
-      // discord.MessageUpdated += UserEvents.MessageUpdated;
+      discord.MessageUpdated += UserEvents.MessageUpdated;
       // discord.MessageDeleted += UserEvents.MessageDeleted;
       discord.ModalSubmitted += ModalEvents.ModalSubmitted;
 

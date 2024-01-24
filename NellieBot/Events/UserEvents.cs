@@ -9,10 +9,12 @@ namespace NellieBot.Events
 {
   public class UserEvents
   {
-    protected static async Task AutomodHandler(string message, DiscordChannel c, DiscordMember m) {
+    protected static async Task AutomodHandler(DiscordMessage message, DiscordChannel c, DiscordMember m) {
       bool detected = false;
 
-      LogBuilder log = new LogBuilder(LogType.AutoModRule).WithEventEmbed(c, m);
+      LogBuilder log = new LogBuilder(LogType.AutoModRule)
+        .WithEventEmbed(c, m)
+        .WithField("Link to message", message.JumpLink.ToString());
 
       DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
       {
@@ -20,7 +22,7 @@ namespace NellieBot.Events
       };
       foreach (var entry in Program.DiscordConfig.AutomodRules)
       {
-        var matches = Regex.Matches(message, entry.Key, RegexOptions.IgnoreCase);
+        var matches = Regex.Matches(message.Content, entry.Key, RegexOptions.IgnoreCase);
         if (matches.Count != 0) {
           detected = true;
           embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value)).TrimForEmbed());
@@ -31,9 +33,9 @@ namespace NellieBot.Events
 
       try {
         await m.SendMessageAsync(embedBuilder);
-        log = log.WithField("User notified with direct message.", "");
+        log = log.WithField("DM Success", "Yes");
       } catch (UnauthorizedException) {
-        log = log.WithField("Failed to notify user with direct message.", "");
+        log = log.WithField("DM Success", "No");
       }
       finally {
         await log.Send();
@@ -43,20 +45,19 @@ namespace NellieBot.Events
     public static async Task MessageCreated(DiscordClient _, MessageCreateEventArgs e)
     {
       if (e.Author.IsBot || e.Channel.IsPrivate) return;
-      await AutomodHandler(e.Message.Content, e.Channel, (DiscordMember)e.Author);
+      await AutomodHandler(e.Message, e.Channel, (DiscordMember)e.Author);
     }
 
     public static async Task MessageUpdated(DiscordClient _, MessageUpdateEventArgs e)
     {
       if (e.Author.IsCurrent || e.Message.WebhookMessage) return;
-      await AutomodHandler(e.Message.Content, e.Channel, (DiscordMember)e.Author);
-
-      await new LogBuilder(LogType.MessageUpdated)
-        .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author)
-        .WithField("Previous Contents", StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents."))
-        .WithField("New Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents."))
-        .WithAuthorAndAttachmentInfo(e.Message!)
-        .Send();
+      await AutomodHandler(e.Message, e.Channel, (DiscordMember)e.Author);
+      // await new LogBuilder(LogType.MessageUpdated)
+      //   .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author)
+      //   .WithField("Previous Contents", StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents."))
+      //   .WithField("New Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents."))
+      //   .WithAuthorAndAttachmentInfo(e.Message!)
+      //   .Send();
     }
 
     public static async Task MessageDeleted(DiscordClient _, MessageDeleteEventArgs e)

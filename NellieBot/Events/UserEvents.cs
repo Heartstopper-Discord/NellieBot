@@ -25,17 +25,21 @@ namespace NellieBot.Events
         var matches = Regex.Matches(message.Content, entry.Key, RegexOptions.IgnoreCase);
         if (matches.Count != 0) {
           detected = true;
-          embedBuilder.AddField(entry.Value, string.Join(", ", matches.Select(x => x.Value).Distinct()));
-          log = log.WithField(entry.Value, string.Join(", ", matches.Select(x => x.Value).Distinct()));
+          embedBuilder
+            .AddField("Suggestion", entry.Value)
+            .AddField("Words", string.Join(", ", matches.Select(x => x.Value).Distinct()));
+          log
+            .WithField("Suggestion", entry.Value)
+            .WithField("Words", string.Join(", ", matches.Select(x => x.Value).Distinct()));
         }
       }
       if (!detected) return;
 
       try {
         await m.SendMessageAsync(embedBuilder);
-        log = log.WithField("DM Success", "Yes");
+        log.WithField("DM Success", "Yes");
       } catch (UnauthorizedException) {
-        log = log.WithField("DM Success", "No");
+        log.WithField("DM Success", "No");
       }
       finally {
         await log.Send();

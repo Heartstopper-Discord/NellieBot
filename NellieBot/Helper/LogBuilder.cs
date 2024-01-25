@@ -111,7 +111,7 @@ namespace NellieBot.Helper
 
     public LogBuilder WithField(string name, string value, bool inline = false)
     {
-      Embed.AddField(name.TrimForEmbed(), value.TrimForEmbed(), inline);
+      Embed.AddField(name.TrimForEmbed(name: true), value.TrimForEmbed(), inline);
       return this;
     }
 

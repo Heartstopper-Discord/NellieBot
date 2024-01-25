@@ -34,7 +34,8 @@ namespace NellieBot.Commands
             label: "Label",
             customId: "label",
             required: true,
-            style: TextInputStyle.Short
+            style: TextInputStyle.Short,
+            max_length: 256
         ))
         .AddComponents(
           new TextInputComponent(
@@ -57,7 +58,8 @@ namespace NellieBot.Commands
             label: "Alert to be DMed to the member",
             customId: "alert",
             required: true,
-            style: TextInputStyle.Paragraph
+            style: TextInputStyle.Paragraph,
+            max_length: 1024
         ));
 
       await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
@@ -79,7 +81,8 @@ namespace NellieBot.Commands
             customId: "label",
             required: true,
             style: TextInputStyle.Short,
-            value: rule.Label
+            value: rule.Label,
+            max_length: 256
         ))
         .AddComponents(
           new TextInputComponent(
@@ -105,7 +108,8 @@ namespace NellieBot.Commands
             customId: "alert",
             required: true,
             style: TextInputStyle.Paragraph,
-            value: rule.Alert
+            value: rule.Alert,
+            max_length: 1024
         ));
 
       await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);

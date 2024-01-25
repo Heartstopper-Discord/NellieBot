@@ -63,18 +63,18 @@ namespace NellieBot.Events
           .WithField("Label", e.Values["label"]);
 
         if (rule.Label != e.Values["label"]) {
-          log = log.WithField("New Label", e.Values["label"]);
+          log.WithField("New Label", e.Values["label"]);
         }
         if (!rule.Words.SequenceEqual(words)) {
-           log = log.WithField("Old Words", string.Join(',', rule.Words.Select(x => $"`{x}`")))
+           log.WithField("Old Words", string.Join(',', rule.Words.Select(x => $"`{x}`")))
             .WithField("New Words", string.Join(',', words.Select(x => $"`{x}`")));
         }
         if (!rule.Regexes.SequenceEqual(regexes)) {
-           log = log.WithField("Old Regexes", string.Join(',', rule.Regexes.Select(x => $"`{x}`")))
+           log.WithField("Old Regexes", string.Join(',', rule.Regexes.Select(x => $"`{x}`")))
             .WithField("New Regexes", string.Join(',', regexes.Select(x => $"`{x}`")));
         }
         if (rule.Alert != e.Values["alert"]) {
-          log = log.WithField("Old Alert", rule.Alert)
+          log.WithField("Old Alert", rule.Alert)
             .WithField("New Alert", e.Values["alert"]);
         }
         await log.Send();

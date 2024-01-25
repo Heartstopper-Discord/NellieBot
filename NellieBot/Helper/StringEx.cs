@@ -8,9 +8,10 @@ namespace NellieBot.Extensions
 {
   static class StringEx
   {
-    public static string TrimForEmbed(this string value)
+    public static string TrimForEmbed(this string value, bool name = false)
     {
       if (string.IsNullOrEmpty(value)) value = "-";
+      if (value.Length > 256 && name) return value.Substring(0, 253) + "...";
       if (value.Length > 1024) return value.Substring(0, 1021) + "...";
       return value;
     }

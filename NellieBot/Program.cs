@@ -55,6 +55,8 @@ namespace NellieBot
       // discord.MessageDeleted += UserEvents.MessageDeleted;
       discord.ModalSubmitted += ModalEvents.ModalSubmitted;
       discord.ThreadCreated += GuildEvents.ThreadCreated;
+      // discord.GuildMemberAdded += MemberEvents.GuildMemberAdded;
+      // discord.GuildMemberRemoved += MemberEvents.GuildMemberRemoved;
 
       await discord.ConnectAsync();
 

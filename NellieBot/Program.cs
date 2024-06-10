@@ -50,11 +50,13 @@ namespace NellieBot
         Timeout = TimeSpan.FromSeconds(30)
       });
 
-      discord.MessageCreated += UserEvents.MessageCreated;
-      discord.MessageUpdated += UserEvents.MessageUpdated;
-      // discord.MessageDeleted += UserEvents.MessageDeleted;
+      discord.MessageCreated += MessageEvents.MessageCreated;
+      discord.MessageUpdated += MessageEvents.MessageUpdated;
+      // discord.MessageDeleted += MessageEvents.MessageDeleted;
       discord.ModalSubmitted += ModalEvents.ModalSubmitted;
       discord.ThreadCreated += GuildEvents.ThreadCreated;
+      // discord.GuildMemberAdded += MemberEvents.GuildMemberAdded;
+      // discord.GuildMemberRemoved += MemberEvents.GuildMemberRemoved;
 
       await discord.ConnectAsync();
 

@@ -49,7 +49,7 @@ namespace NellieBot.Database
 
     public async Task RefreshAutomodRules() {
       AutomodRules = (await AutomodCollection.GetAllAutomodRules())
-        .ToDictionary(k => string.Join("|", k.Words.Concat(k.Regexes).Where(x => !string.IsNullOrWhiteSpace(x))
+        .ToDictionary(k => string.Join("|", k.Words.Select(w => string.Concat("(^|[^A-Za-z])",w,"($|[^A-Za-z])").ToList()).Concat(k.Regexes).Where(x => !string.IsNullOrWhiteSpace(x))
         .Select(x => $"({x})")), v => v.Alert);
     }
   }

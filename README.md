@@ -32,6 +32,6 @@
 - [ ] Thin Ice Commands
 - [ ] Logs
   - [ ] Hook into PluralKit? Or catch PK logs somehow for message edit/deletes
-  - [ ] Member Join/Leave log
+  - [x] Member Join/Leave log
   - [ ] Utility log for commands used
 - [ ] More to come

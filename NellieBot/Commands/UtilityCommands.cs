@@ -1,24 +1,24 @@
 ﻿using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
+using DSharpPlus.Commands;
 using NellieBot.Database;
 using NellieBot.Helper;
+using DSharpPlus.Commands.ContextChecks;
+using System.ComponentModel;
+using DSharpPlus.Commands.Processors.SlashCommands;
 
 namespace NellieBot.Commands
 {
-  [SlashCommandPermissions(Permissions.ManageMessages)]
-  [HasRole(ModType.Mod)]
-  public class UtilityCommands : ApplicationCommandModule
+  [RequirePermissions(DiscordPermissions.ManageMessages)]
+  public class UtilityCommands
   {
-    public required DiscordConfig Config { private get; set; }
-
-    [SlashCommand("speak", "Say something through Nellie.")]
-    public async Task SpeakCommand(InteractionContext ctx, [Option("text", "The text that Nellie will say.")] string text)
+    [Command("speak")]
+    [HasRole(ModType.Mod)]
+    public async ValueTask SpeakCommand(SlashCommandContext ctx, [Description("The text that Nellie will say.")] string text)
     {
       await ctx.Channel.SendMessageAsync(text);
-      await ctx.CreateResponseAsync(
-        InteractionResponseType.ChannelMessageWithSource,
-        new DiscordInteractionResponseBuilder().WithContent("Message sent.").AsEphemeral()
-      );
+      await ctx.Channel.SendMessageAsync(Program.DiscordConfig.ActionLogChannel.Name);
+
+      await ctx.RespondAsync("Message sent.", true);
     }
   }
 }

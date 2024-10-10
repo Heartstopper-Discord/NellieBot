@@ -400,4 +400,5 @@ FodyWeavers.xsd
 NellieBot/*.db
 
 config.json
+config.live.json
 .DS_Store

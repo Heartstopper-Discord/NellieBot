@@ -36,15 +36,19 @@ namespace NellieBot.Database
     public DiscordConfig(DiscordGuild g, Config c)
     {
       Guild = g;
-      Moderator = g.GetRole(c.ModeratorId);
-      SeniorModerator = g.GetRole(c.SeniorModeratorId);
-      Admin = g.GetRole(c.AdminId);
-      MessageLogChannel = g.GetChannel(c.MessageLogChannel);
-      MemberLogChannel = g.GetChannel(c.MemberLogChannel);
-      ActionLogChannel = g.GetChannel(c.ActionLogChannel);
-      UtilityLogChannel = g.GetChannel(c.UtilityLogChannel);
-      AutomodLogChannel = g.GetChannel(c.AutomodLogChannel);
+      LoadRolesAndChannels(c).Wait();
       RefreshAutomodRules().Wait();
+    }
+
+    public async Task LoadRolesAndChannels(Config c) {
+      Moderator = await Guild.GetRoleAsync(c.ModeratorId);
+      SeniorModerator = await Guild.GetRoleAsync(c.SeniorModeratorId);
+      Admin = await Guild.GetRoleAsync(c.AdminId);
+      MessageLogChannel = await Guild.GetChannelAsync(c.MessageLogChannel);
+      MemberLogChannel = await Guild.GetChannelAsync(c.MemberLogChannel);
+      ActionLogChannel = await Guild.GetChannelAsync(c.ActionLogChannel);
+      UtilityLogChannel = await Guild.GetChannelAsync(c.UtilityLogChannel);
+      AutomodLogChannel = await Guild.GetChannelAsync(c.AutomodLogChannel);
     }
 
     public async Task RefreshAutomodRules() {

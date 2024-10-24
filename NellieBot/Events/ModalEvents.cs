@@ -23,7 +23,6 @@ namespace NellieBot.Events
         List<string> words = [.. e.Values["words"].Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x))];
         List<string> regexes = [.. e.Values["regex"].Split('\n').Where(x => !string.IsNullOrEmpty(x))];
         await AutomodCollection.AddAutomodRule(e.Values["label"], words, regexes, e.Values["alert"]);
-        await Program.CommandsExtension.RefreshAsync();
 
         await e.Interaction.CreateResponseAsync(
           DiscordInteractionResponseType.ChannelMessageWithSource,
@@ -46,12 +45,18 @@ namespace NellieBot.Events
           );
           return;
         }
-        AutomodData rule = await AutomodCollection.GetAutomodRule(int.Parse(split[1]));
+        var rule = await AutomodCollection.GetAutomodRule(int.Parse(split[1]));
+        if (rule == null) {
+          await e.Interaction.CreateResponseAsync(
+            DiscordInteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent("Rule not found").AsEphemeral()
+          );
+          return;
+        }
 
         List<string> words = [.. e.Values["words"].Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x))];
         List<string> regexes = [.. e.Values["regex"].Split('\n').Where(x => !string.IsNullOrEmpty(x))];
         await AutomodCollection.EditAutomodRule(int.Parse(split[1]), e.Values["label"], words, regexes, e.Values["alert"]);
-        await Program.CommandsExtension.RefreshAsync();
 
         await e.Interaction.CreateResponseAsync(
           DiscordInteractionResponseType.ChannelMessageWithSource,

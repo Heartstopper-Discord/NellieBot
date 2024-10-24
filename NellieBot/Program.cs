@@ -16,7 +16,6 @@ namespace NellieBot
   {
     public static Config BotConfig;
     public static DiscordConfig DiscordConfig;
-    public static CommandsExtension CommandsExtension;
 
     static async Task Main(string[] args)
     {
@@ -56,8 +55,7 @@ namespace NellieBot
 
       clientBuilder.UseCommands((IServiceProvider sp, CommandsExtension e) =>
       {
-        CommandsExtension = e;
-        e.AddCommands([typeof(UtilityCommands)]); // , typeof(WarnCommands), typeof(AutomodCommands)
+        e.AddCommands([typeof(UtilityCommands), typeof(AutomodCommands)]); // , typeof(WarnCommands), typeof(AutomodCommands)
         e.AddCheck<HasRole>();
         e.AddProcessor(new SlashCommandProcessor());
         e.CommandErrored += async (s, e) => {

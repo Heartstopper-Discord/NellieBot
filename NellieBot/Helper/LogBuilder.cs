@@ -106,7 +106,7 @@ namespace NellieBot.Helper
       return this;
     }
 
-    public LogBuilder WithEventEmbed(DiscordChannel c, DiscordMember? u)
+    public LogBuilder WithEventEmbed(DiscordChannel c, DiscordMember u)
     {
       Embed = Embed
         .WithAuthor(Embed.Author?.Name, iconUrl: u?.AvatarUrl)

@@ -42,6 +42,9 @@ namespace NellieBot
       clientBuilder.ConfigureEventHandlers(h => {
         // h.HandleThreadCreated(GuildEvents.ThreadCreated);
         h.HandleModalSubmitted(ModalEvents.ModalSubmitted);
+        h.HandleMessageCreated(GuildEvents.MessageCreated);
+        h.HandleMessageUpdated(GuildEvents.MessageUpdated);
+        h.HandleMessageDeleted(GuildEvents.MessageDeleted);
       });
 
       clientBuilder.UseInteractivity(new InteractivityConfiguration()

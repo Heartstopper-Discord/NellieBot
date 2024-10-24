@@ -24,7 +24,7 @@ namespace NellieBot.Commands
     }
 
     [Command("eventquestion")]
-    public async ValueTask EventSayCommand(SlashCommandContext ctx, [Description("The question to be asked")] string question,
+    public async ValueTask EventQuestionCommand(SlashCommandContext ctx, [Description("The question to be asked")] string question,
                                            [Description("The user who asked the question originally")] DiscordUser user)
     {
       string message = $"## {question}\n*__Asked by__: {user.Mention}*\n## <:Leaf1:976072863855558706><:Leaf2:1064274309423579137><:Leaf3:1064274307951382721><:Leaf4:1064274305493516298>";
@@ -38,7 +38,7 @@ namespace NellieBot.Commands
     }
 
     [Command("eventpaq")]
-    public async ValueTask EventAnswerCommand(SlashCommandContext ctx)
+    public async ValueTask EventPaqCommand(SlashCommandContext ctx)
     {
       var modal = new DiscordInteractionResponseBuilder()
         .WithTitle("Add Event Answer")

@@ -88,6 +88,7 @@ namespace NellieBot.Helper
           Embed = Embed.WithColor(DiscordColor.Red).WithAuthor("Bot Errored");
           LogChannel = Program.DiscordConfig.UtilityLogChannel;
           break;
+
         case LogType.Say:
           Embed = Embed.WithColor(DiscordColor.Aquamarine).WithAuthor("Say Command Used");
           LogChannel = Program.DiscordConfig.UtilityLogChannel;

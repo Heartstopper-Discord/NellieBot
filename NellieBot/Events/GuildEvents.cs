@@ -66,8 +66,9 @@ namespace NellieBot.Events
 
       await new LogBuilder(LogType.MessageUpdated)
         .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author!)
-        .WithCodeField("Previous Contents", StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents."))
-        .WithCodeField("New Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents."))
+        .WithField("Previous Contents", StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents."))
+        .WithField("New Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents."))
+        .WithField("Link to message", e.Message!.JumpLink.ToString())
         .WithAuthorAndAttachmentInfo(e.Message!)
         .Send();
     }
@@ -78,7 +79,7 @@ namespace NellieBot.Events
 
       await new LogBuilder(LogType.MessageDeleted)
         .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author!)
-        .WithCodeField("Message Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve message contents."))
+        .WithField("Message Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve message contents."))
         .WithAuthorAndAttachmentInfo(e.Message!)
         .Send();
     }

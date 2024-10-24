@@ -16,7 +16,8 @@ namespace NellieBot.Helper
     AutomodRuleAdded,
     AutomodRuleModified,
     AutomodRuleRemoved,
-    Error
+    Error,
+    Say
   }
 
   public class LogBuilder
@@ -87,6 +88,10 @@ namespace NellieBot.Helper
           Embed = Embed.WithColor(DiscordColor.Red).WithAuthor("Bot Errored");
           LogChannel = Program.DiscordConfig.UtilityLogChannel;
           break;
+        case LogType.Say:
+          Embed = Embed.WithColor(DiscordColor.Aquamarine).WithAuthor("Say Command Used");
+          LogChannel = Program.DiscordConfig.UtilityLogChannel;
+          break;
       }
     }
 
@@ -101,10 +106,10 @@ namespace NellieBot.Helper
       return this;
     }
 
-    public LogBuilder WithEventEmbed(DiscordChannel c, DiscordMember u)
+    public LogBuilder WithEventEmbed(DiscordChannel c, DiscordMember? u)
     {
       Embed = Embed
-        .WithAuthor(Embed.Author.Name, iconUrl: u.AvatarUrl)
+        .WithAuthor(Embed.Author?.Name, iconUrl: u?.AvatarUrl)
         .WithDescription($"Location: {c.Mention} ({c.Name})");
       return this;
     }
@@ -115,9 +120,21 @@ namespace NellieBot.Helper
       return this;
     }
 
+    public LogBuilder WithCodeField(string name, string value)
+    {
+      Embed.AddField(name.TrimForEmbed(name: true), value.WrapForEmbed());
+      return this;
+    }
+
     public LogBuilder WithAuthorAndAttachmentInfo(DiscordMessage m)
     {
       Embed.AddAuthorAndAttachmentInfo(m);
+      return this;
+    }
+
+    public LogBuilder WithAuthorFooter(DiscordMember? m)
+    {
+      Embed.WithFooter($" By {m!.Username}", m!.AvatarUrl);
       return this;
     }
 

@@ -1,15 +1,14 @@
 ﻿global using DSharpPlus;
-using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using NellieBot.Events;
 using NellieBot.Database;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NellieBot.Commands;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity;
-using NellieBot.Database.Collections;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.Processors.SlashCommands;
+using NellieBot.Helper;
 
 namespace NellieBot
 {
@@ -17,6 +16,7 @@ namespace NellieBot
   {
     public static Config BotConfig;
     public static DiscordConfig DiscordConfig;
+    public static CommandsExtension CommandsExtension;
 
     static async Task Main(string[] args)
     {
@@ -31,46 +31,47 @@ namespace NellieBot
         return;
       }
 
-      Log.Logger = new LoggerConfiguration()
-        .WriteTo.Console()
-        .CreateLogger();
+      var clientBuilder = DiscordClientBuilder.CreateDefault(BotConfig.Token, DiscordIntents.All);
 
-      var logFactory = new LoggerFactory().AddSerilog();
-      var discord = new DiscordClient(new DiscordConfiguration()
-      {
-        Token = BotConfig.Token,
-        TokenType = TokenType.Bot,
-        Intents = DiscordIntents.All,
-        MinimumLogLevel = LogLevel.Information,
-        LoggerFactory = logFactory
+      // clientBuilder.ConfigureEventHandlers(
+      //   // h => h.HandleMessageCreated(UserEvents.MessageCreated)
+      //   //       .HandleMessageUpdated(UserEvents.MessageUpdated)
+      //   //       .HandleModalSubmitted(ModalEvents.ModalSubmitted)
+      // );
+
+      clientBuilder.ConfigureEventHandlers(h => {
+        // h.HandleThreadCreated(GuildEvents.ThreadCreated);
+        h.HandleModalSubmitted(ModalEvents.ModalSubmitted);
       });
 
-      discord.UseInteractivity(new InteractivityConfiguration()
+      clientBuilder.UseInteractivity(new InteractivityConfiguration()
       {
         Timeout = TimeSpan.FromSeconds(30)
       });
 
-      discord.MessageCreated += UserEvents.MessageCreated;
-      discord.MessageUpdated += UserEvents.MessageUpdated;
-      // discord.MessageDeleted += UserEvents.MessageDeleted;
-      discord.ModalSubmitted += ModalEvents.ModalSubmitted;
-      discord.ThreadCreated += GuildEvents.ThreadCreated;
+      clientBuilder.SetLogLevel(LogLevel.Information);
 
-      await discord.ConnectAsync();
-
-      DiscordConfig = new DiscordConfig(await discord.GetGuildAsync(BotConfig.GuildId), BotConfig);
-
-      var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
+      clientBuilder.UseCommands((IServiceProvider sp, CommandsExtension e) =>
       {
-        Services = new ServiceCollection().AddSingleton(DiscordConfig).BuildServiceProvider()
+        CommandsExtension = e;
+        e.AddCommands([typeof(UtilityCommands)]); // , typeof(WarnCommands), typeof(AutomodCommands)
+        e.AddCheck<HasRole>();
+        e.AddProcessor(new SlashCommandProcessor());
+        e.CommandErrored += async (s, e) => {
+          await ((SlashCommandContext)e.Context).RespondAsync("You do not have permission to use that command!", true);
+        };
+      }, new CommandsConfiguration()
+      {
+        // DebugGuildId = BotConfig.GuildId,
+        UseDefaultCommandErrorHandler = false
       });
 
-      slash.SlashCommandErrored += ClientEvents.SlashCommandErrored;
-      // slash.RegisterCommands<WarnCommands>();
-      // slash.RegisterCommands<UtilityCommands>();
-      slash.RegisterCommands<AutomodCommands>();
+      var client = clientBuilder.Build();
 
-      await slash.RefreshCommands();
+      // client.MessageDeleted += UserEvents.MessageDeleted;
+
+      await client.ConnectAsync();
+      DiscordConfig = new DiscordConfig(await client.GetGuildAsync(BotConfig.GuildId), BotConfig);
 
       await Task.Delay(-1);
     }

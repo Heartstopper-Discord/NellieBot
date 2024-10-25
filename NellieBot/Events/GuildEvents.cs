@@ -16,6 +16,24 @@ namespace NellieBot.Events
       await m.DeleteAsync();
     }
 
+    public static async Task GuildMemberAdded(DiscordClient _, GuildMemberAddedEventArgs e)
+    {
+      await new LogBuilder(LogType.MemberJoined)
+        .WithField("Welcome:", $"{e.Member.Mention} ({e.Member.Username})")
+        .WithField("ID", e.Member.Id.ToString())
+        .WithFooter($"Member count: {e.Guild.MemberCount}")
+        .Send();
+    }
+
+    public static async Task GuildMemberRemoved(DiscordClient _, GuildMemberRemovedEventArgs e)
+    {
+      await new LogBuilder(LogType.MemberLeft)
+        .WithField("Goodbye:", e.Member.Username)
+        .WithField("ID", e.Member.Id.ToString())
+        .WithFooter($"Member count: {e.Guild.MemberCount}")
+        .Send();
+    }
+
     protected static async Task AutomodHandler(DiscordMessage message, DiscordChannel c, DiscordMember m) {
       bool detected = false;
 
@@ -62,6 +80,7 @@ namespace NellieBot.Events
     public static async Task MessageUpdated(DiscordClient _, MessageUpdatedEventArgs e)
     {
       if (e.Author?.IsCurrent == true || e.Message.WebhookMessage == true || e.Author?.IsBot == true) return;
+      if (e.MessageBefore?.Content == e.Message?.Content) return;
       await AutomodHandler(e.Message, e.Channel, (DiscordMember)e.Author!);
 
       await new LogBuilder(LogType.MessageUpdated)

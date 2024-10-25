@@ -12,6 +12,8 @@ namespace NellieBot.Helper
     RemoveTimeout,
     MessageUpdated,
     MessageDeleted,
+    MemberJoined,
+    MemberLeft,
     AutomodRuleBroken,
     AutomodRuleAdded,
     AutomodRuleModified,
@@ -62,6 +64,16 @@ namespace NellieBot.Helper
         case LogType.MessageDeleted:
           Embed = Embed.WithColor(DiscordColor.HotPink).WithAuthor("Message Deleted");
           LogChannel = Program.DiscordConfig.MessageLogChannel;
+          break;
+
+        case LogType.MemberJoined:
+          Embed = Embed.WithColor(DiscordColor.Green).WithAuthor("User joined the server!");
+          LogChannel = Program.DiscordConfig.MemberLogChannel;
+          break;
+
+        case LogType.MemberLeft:
+          Embed = Embed.WithColor(DiscordColor.Red).WithAuthor("User left the server!");
+          LogChannel = Program.DiscordConfig.MemberLogChannel;
           break;
 
         case LogType.AutomodRuleBroken:
@@ -136,6 +148,12 @@ namespace NellieBot.Helper
     public LogBuilder WithAuthorFooter(DiscordMember? m)
     {
       Embed.WithFooter($" By {m!.Username}", m!.AvatarUrl);
+      return this;
+    }
+
+    public LogBuilder WithFooter(string text)
+    {
+      Embed.WithFooter(text.TrimForEmbed(name: true));
       return this;
     }
 

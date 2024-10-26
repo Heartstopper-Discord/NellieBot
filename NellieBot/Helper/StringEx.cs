@@ -16,6 +16,13 @@ namespace NellieBot.Extensions
       return value;
     }
 
+    public static string WrapForEmbed(this string value)
+    {
+      if (string.IsNullOrEmpty(value)) value = "-";
+      if (value.Length > 1024) return $"```\n`{value.Substring(0, 1015)}...\n```";
+      return $"```\n{value}\n```";
+    }
+
     public static string DefaultIfNullOrEmpty(string? value, string defaultValue)
     {
       if (value == null || value.Length == 0) return defaultValue;

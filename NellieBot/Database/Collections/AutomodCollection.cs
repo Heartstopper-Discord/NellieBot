@@ -6,10 +6,10 @@ namespace NellieBot.Database.Collections
 {
   static class AutomodCollection
   {
-    public static async Task<AutomodData> GetAutomodRule(int id)
+    public static async Task<AutomodData?> GetAutomodRule(int id)
     {
       using var db = new DatabaseContext();
-      return await db.AutomodRules.FirstAsync(x => x.Id == id);
+      return await db.AutomodRules.FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public static async Task<List<AutomodData>> GetAllAutomodRules()
@@ -54,14 +54,15 @@ namespace NellieBot.Database.Collections
       await Program.DiscordConfig.RefreshAutomodRules();
     }
 
-    public static async Task RemoveAutomodRule(int id)
+    public static async Task<bool> RemoveAutomodRule(int id)
     {
       using var db = new DatabaseContext();
-      var ruleToDelete = await db.AutomodRules.SingleAsync(x => x.Id == id);
-
+      var ruleToDelete = await db.AutomodRules.SingleOrDefaultAsync(x => x.Id == id);
+      if (ruleToDelete == null) return false;
       db.AutomodRules.Remove(ruleToDelete);
       await db.SaveChangesAsync();
       await Program.DiscordConfig.RefreshAutomodRules();
+      return true;
     }
   }
 }

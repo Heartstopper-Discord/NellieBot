@@ -29,7 +29,7 @@ namespace NellieBot.Events
           new DiscordInteractionResponseBuilder().WithContent("Rule added").AsEphemeral()
         );
         await new LogBuilder(LogType.AutomodRuleAdded)
-          .WithEventEmbed(e.Interaction.Channel, (DiscordMember)e.Interaction.User)
+          .WithEventEmbed(e.Interaction.Channel, e.Interaction.User)
           .WithField("Label", e.Values["label"])
           .WithField("Words", string.Join(',', words.Select(x => $"`{x}`")))
           .WithField("Regex", string.Join(',', regexes.Select(x => $"`{x}`")))
@@ -63,7 +63,7 @@ namespace NellieBot.Events
           new DiscordInteractionResponseBuilder().WithContent("Rule edited").AsEphemeral()
         );
         LogBuilder log = new LogBuilder(LogType.AutomodRuleModified)
-          .WithEventEmbed(e.Interaction.Channel, (DiscordMember)e.Interaction.User)
+          .WithEventEmbed(e.Interaction.Channel, e.Interaction.User)
           .WithField("Label", e.Values["label"]);
 
         if (rule.Label != e.Values["label"]) {
@@ -95,7 +95,7 @@ namespace NellieBot.Events
         await new LogBuilder(LogType.Say)
           .WithCodeField("Event message sent", res)
           .WithField("Channel", e.Interaction.Channel.Mention)
-          .WithAuthorFooter((DiscordMember)e.Interaction.User)
+          .WithAuthorFooter(e.Interaction.User)
           .Send();
         await e.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Sent!").AsEphemeral());
 

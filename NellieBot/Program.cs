@@ -59,7 +59,7 @@ namespace NellieBot
           await new LogBuilder(LogType.Error)
             .WithField("Error", e.Exception.ToString())
             .WithField("Command", e.Context.Command.Name)
-            .WithField("User", ((SlashCommandContext)e.Context).Member!.Mention)
+            .WithField("User", ((SlashCommandContext)e.Context).Member?.Mention ?? "Unknown")
             .Send();
         };
       }, new CommandsConfiguration()

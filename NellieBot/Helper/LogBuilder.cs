@@ -108,18 +108,26 @@ namespace NellieBot.Helper
       }
     }
 
-    public LogBuilder WithActionEmbed(string? reason, string? note, DiscordUser u, DiscordUser by, string dmResult)
+    public LogBuilder WithActionEmbed(string? reason, string? note, DiscordUser u, DiscordUser? by, string dmResult)
     {
       Embed = Embed
         .AddField("User:", $"{u.Mention} ({u.Username})\n{u.Id}")
         .AddField("Reason:", StringEx.DefaultIfNullOrEmpty(reason, "No reason provided."))
         .AddField("Note:", StringEx.DefaultIfNullOrEmpty(note, "No note provided."))
         .AddField("User Notification:", dmResult)
-        .WithFooter($"Requested by {by.Username}", by.AvatarUrl);
+        .WithFooter($"Requested by {by?.Username ?? "Unable to retreive user."}", by?.AvatarUrl);
       return this;
     }
 
-    public LogBuilder WithEventEmbed(DiscordChannel c, DiscordMember u)
+    public LogBuilder WithEventEmbed(DiscordChannel c, DiscordMember? m)
+    {
+      Embed = Embed
+        .WithAuthor(Embed.Author?.Name, iconUrl: m?.AvatarUrl)
+        .WithDescription($"Location: {c.Mention} ({c.Name})");
+      return this;
+    }
+
+    public LogBuilder WithEventEmbed(DiscordChannel c, DiscordUser? u)
     {
       Embed = Embed
         .WithAuthor(Embed.Author?.Name, iconUrl: u?.AvatarUrl)
@@ -139,15 +147,19 @@ namespace NellieBot.Helper
       return this;
     }
 
-    public LogBuilder WithAuthorAndAttachmentInfo(DiscordMessage m)
+    public LogBuilder WithAuthorAndAttachmentInfo(DiscordMessage? m)
     {
       Embed.AddAuthorAndAttachmentInfo(m);
       return this;
     }
 
-    public LogBuilder WithAuthorFooter(DiscordMember? m)
+    public LogBuilder WithAuthorFooter(DiscordUser? u)
     {
-      Embed.WithFooter($" By {m!.Username}", m!.AvatarUrl);
+      if (u is not null)  {
+        Embed.WithFooter($" By {u.Username}", u.AvatarUrl);
+      } else {
+        Embed.WithFooter($" Unable to retreive user.");
+      }
       return this;
     }
 

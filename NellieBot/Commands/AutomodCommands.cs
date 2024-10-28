@@ -145,7 +145,7 @@ namespace NellieBot.Commands
       await ctx.RespondAsync("Rule removed", true);
 
       await new LogBuilder(LogType.AutomodRuleRemoved)
-        .WithEventEmbed(ctx.Channel, ctx.Member!)
+        .WithEventEmbed(ctx.Channel, ctx.Member)
         .WithField("Label", rule.Label)
         .WithField("Words", string.Join(',', rule.Words.Select(x => $"`{x}`")))
         .WithField("Regex", string.Join(',', rule.Regexes.Select(x => $"`{x}`")))

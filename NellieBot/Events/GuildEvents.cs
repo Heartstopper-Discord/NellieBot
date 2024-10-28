@@ -34,11 +34,11 @@ namespace NellieBot.Events
         .Send();
     }
 
-    protected static async Task AutomodHandler(DiscordMessage message, DiscordChannel c, DiscordMember m) {
+    protected static async Task AutomodHandler(DiscordMessage message, DiscordChannel c, DiscordUser? u) {
       bool detected = false;
 
       LogBuilder log = new LogBuilder(LogType.AutomodRuleBroken)
-        .WithEventEmbed(c, m)
+        .WithEventEmbed(c, u)
         .WithField("Link to message", message.JumpLink.ToString());
 
       DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
@@ -59,10 +59,13 @@ namespace NellieBot.Events
         }
       }
       if (!detected) return;
-
       try {
-        await m.SendMessageAsync(embedBuilder);
-        log.WithField("DM Success", "Yes");
+        if (u is not null) {
+          await u.SendMessageAsync(embedBuilder);
+          log.WithField("DM Success", "Yes");
+        } else {
+          log.WithField("DM Success", "No");
+        }
       } catch (UnauthorizedException) {
         log.WithField("DM Success", "No");
       }
@@ -74,21 +77,23 @@ namespace NellieBot.Events
     public static async Task MessageCreated(DiscordClient _, MessageCreatedEventArgs e)
     {
       if (e.Author.IsBot || e.Channel.IsPrivate) return;
-      await AutomodHandler(e.Message, e.Channel, (DiscordMember)e.Author);
+      await AutomodHandler(e.Message, e.Channel, e.Author);
     }
 
     public static async Task MessageUpdated(DiscordClient _, MessageUpdatedEventArgs e)
     {
       if (e.Author?.IsCurrent == true || e.Message.WebhookMessage == true || e.Author?.IsBot == true) return;
       if (e.MessageBefore?.Content == e.Message?.Content) return;
-      await AutomodHandler(e.Message, e.Channel, (DiscordMember)e.Author!);
+      if (e.Message is not null) {
+        await AutomodHandler(e.Message, e.Channel, e.Author);
+      }
 
       await new LogBuilder(LogType.MessageUpdated)
-        .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author!)
+        .WithEventEmbed(e.Channel, e.Message?.Author)
         .WithField("Previous Contents", StringEx.DefaultIfNullOrEmpty(e.MessageBefore?.Content, "Failed to retrieve previous message contents."))
         .WithField("New Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve new message contents."))
-        .WithField("Link to message", e.Message!.JumpLink.ToString())
-        .WithAuthorAndAttachmentInfo(e.Message!)
+        .WithField("Link to message", StringEx.DefaultIfNullOrEmpty(e.Message?.JumpLink.ToString(), "Failed to retrieve message link."))
+        .WithAuthorAndAttachmentInfo(e.Message)
         .Send();
     }
 
@@ -97,9 +102,9 @@ namespace NellieBot.Events
       if (e.Message.Author?.IsCurrent == true || e.Message.WebhookMessage == true) return;
 
       await new LogBuilder(LogType.MessageDeleted)
-        .WithEventEmbed(e.Channel, (DiscordMember)e.Message.Author!)
+        .WithEventEmbed(e.Channel, e.Message.Author)
         .WithField("Message Contents", StringEx.DefaultIfNullOrEmpty(e.Message?.Content, "Failed to retrieve message contents."))
-        .WithAuthorAndAttachmentInfo(e.Message!)
+        .WithAuthorAndAttachmentInfo(e.Message)
         .Send();
     }
   }

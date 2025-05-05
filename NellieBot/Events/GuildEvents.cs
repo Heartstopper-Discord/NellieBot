@@ -41,7 +41,10 @@ namespace NellieBot.Events
         .WithEventEmbed(c, u)
         .WithField("Link to message", message.JumpLink.ToString());
 
-      DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder();
+      DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
+      {
+        Title = "Ableist Terms Detected"
+      };
 
       foreach (var entry in Program.DiscordConfig.AutomodRules)
       {
@@ -49,10 +52,10 @@ namespace NellieBot.Events
         if (matches.Count != 0) {
           detected = true;
           embedBuilder
-            .AddField("Suggestion", entry.Value)
+            .AddField("---", entry.Value)
             .AddField("Words", string.Join(", ", matches.Select(x => x.Value).Distinct()));
           log
-            .WithField("Suggestion", entry.Value)
+            .WithField("---", entry.Value)
             .WithField("Words", string.Join(", ", matches.Select(x => x.Value).Distinct()));
         }
       }

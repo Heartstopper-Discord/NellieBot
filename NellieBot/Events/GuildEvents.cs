@@ -41,10 +41,8 @@ namespace NellieBot.Events
         .WithEventEmbed(c, u)
         .WithField("Link to message", message.JumpLink.ToString());
 
-      DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
-      {
-        Title = "Ableist Terms Detected"
-      };
+      DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder();
+
       foreach (var entry in Program.DiscordConfig.AutomodRules)
       {
         var matches = Regex.Matches(message.Content, entry.Key, RegexOptions.IgnoreCase);
@@ -84,6 +82,7 @@ namespace NellieBot.Events
     {
       if (e.Author?.IsCurrent == true || e.Message.WebhookMessage == true || e.Author?.IsBot == true) return;
       if (e.MessageBefore?.Content == e.Message?.Content) return;
+      if (e.Channel.Id == 1126280165375352842) return;
       if (e.Message is not null) {
         await AutomodHandler(e.Message, e.Channel, e.Author);
       }
@@ -100,6 +99,7 @@ namespace NellieBot.Events
     public static async Task MessageDeleted(DiscordClient _, MessageDeletedEventArgs e)
     {
       if (e.Message.Author?.IsCurrent == true || e.Message.WebhookMessage == true) return;
+      if (e.Channel.Id == 1126280165375352842) return;
 
       await new LogBuilder(LogType.MessageDeleted)
         .WithEventEmbed(e.Channel, e.Message.Author)

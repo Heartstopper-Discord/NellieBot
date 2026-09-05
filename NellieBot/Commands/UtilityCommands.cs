@@ -23,6 +23,12 @@ namespace NellieBot.Commands
         .Send();
     }
 
+    [Command("privacy")]
+    public async ValueTask PrivacyCommand(SlashCommandContext ctx)
+    {
+      await ctx.RespondAsync("The privacy policy for NellieBot can be found at https://github.com/Heartstopper-Discord/NellieBot/blob/main/privacy-policy.md");
+    }
+
     // class Scores {
     //   public DiscordMessage message { get; set; }
     //   public int Yes { get; set; }
